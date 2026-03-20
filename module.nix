@@ -225,8 +225,6 @@ in
           shell = buildGazebros2nixShell distro pkgs packages;
         in
         pkgs.rosPackages.${distro}.buildEnv {
-          __structuredAttrs = true;
-          strictDeps = true;
           paths = lib.unique (
             lib.filter lib.isDerivation (
               (shell.buildInputs or [ ])
