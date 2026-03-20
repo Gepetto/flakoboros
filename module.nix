@@ -200,6 +200,9 @@ in
 
       getRosBasePackages = distro: pkgs: [
         pkgs.colcon
+        pkgs.rosPackages.${distro}.ros2action
+        pkgs.rosPackages.${distro}.ros2launch
+        pkgs.rosPackages.${distro}.ros2run
         pkgs.rosPackages.${distro}.ros2topic
       ];
 
