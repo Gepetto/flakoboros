@@ -254,6 +254,7 @@ in
               ++ (shell.propagatedNativeBuildInputs or [ ])
               ++ (shell.propagatedBuildInputs or [ ])
             )
+            ++ lib.attrVals (lib.uniqueStrings cfg.extraPythonModules) pkgs.python3Packages
             ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
               pkgs.python3Packages.coal # TODO
               pkgs.qt5.wrapQtAppsHook
@@ -281,6 +282,7 @@ in
               && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
             ) packages
           );
+          packages = lib.attrVals (lib.uniqueStrings cfg.extraPythonModules) pkgs.python3Packages;
         };
 
       buildGazebros2nixRosShell =
@@ -311,6 +313,7 @@ in
               ++ (shell.propagatedNativeBuildInputs or [ ])
               ++ (shell.propagatedBuildInputs or [ ])
             )
+            ++ lib.attrVals (lib.uniqueStrings cfg.extraPythonModules) pkgs.python3Packages
             ++ lib.optional (
               distro == "humble" || distro == "jazzy" || distro == "kilted"
             ) pkgs.qt5.wrapQtAppsHook
@@ -332,7 +335,9 @@ in
           __structuredAttrs = true;
           strictDeps = true;
           inputsFrom = [ shell ];
-          packages = getRosBasePackages distro pkgs;
+          packages =
+            getRosBasePackages distro pkgs
+            ++ lib.attrVals (lib.uniqueStrings cfg.extraPythonModules) pkgs.python3Packages;
           shellHook = rosShellHook { inherit env pkgs; };
         };
 
