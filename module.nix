@@ -93,6 +93,12 @@ in
       description = "build all packages and devShells in checks";
       default = false;
     };
+
+    extraPythonModules = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "list of python modules to include in apps.default, in addition to pyPackages, pyOverrides & pyOverrideAttrs";
+      default = [ ];
+    };
   };
 
   config =
@@ -440,6 +446,10 @@ in
       };
 
       perSystem =
+        let
+          pythonModules =
+            lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs) ++ cfg.extraPythonModules;
+        in
         {
           pkgs,
           self',
@@ -501,6 +511,13 @@ in
               self.overlays.default
             ]
             ++ cfg.overlays;
+          };
+        }
+
+        // lib.optionalAttrs (pythonModules != [ ]) {
+          apps.default = {
+            type = "app";
+            program = pkgs.python3.withPackages (p: lib.attrVals (lib.uniqueStrings pythonModules) p);
           };
         }
 
