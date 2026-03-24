@@ -19,6 +19,19 @@ in
       default = [ ];
     };
 
+    packages = lib.mkOption {
+      description = "packages to add in overlay";
+      default = { };
+    };
+    pyPackages = lib.mkOption {
+      description = "python packages to add in overlay";
+      default = { };
+    };
+    rosPackages = lib.mkOption {
+      description = "ROS packages to add in overlay";
+      default = { };
+    };
+
     overrides = lib.mkOption {
       description = "attrSet of packages name/override to add in overlay";
       default = { };
@@ -32,16 +45,16 @@ in
       default = { };
     };
 
-    packages = lib.mkOption {
-      description = "packages to add in overlay";
+    overrideAttrs = lib.mkOption {
+      description = "attrSet of packages name/overrideAttrs to add in overlay";
       default = { };
     };
-    pyPackages = lib.mkOption {
-      description = "python packages to add in overlay";
+    pyOverrideAttrs = lib.mkOption {
+      description = "attrSet of python packages name/overrideAttrs to add in overlay";
       default = { };
     };
-    rosPackages = lib.mkOption {
-      description = "ROS packages to add in overlay";
+    rosOverrideAttrs = lib.mkOption {
+      description = "attrSet of ROS packages name/overrideAttrs to add in overlay";
       default = { };
     };
 
@@ -348,34 +361,82 @@ in
             ;
         };
 
-        overlays.default =
-          final: prev:
-          (lib.mapAttrs (name: override: prev.${name}.overrideAttrs (override final)) cfg.overrides)
-          // (lib.mapAttrs (_name: package: final.callPackage package { }) cfg.packages)
-          // {
-            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-              (
-                python-final: python-prev:
-                lib.mapAttrs (
-                  name: override: python-prev.${name}.overrideAttrs (override final python-final)
-                ) cfg.pyOverrides
-                // lib.mapAttrs (_name: package: python-final.callPackage package { }) cfg.pyPackages
-              )
-            ];
-
-            rosPackages =
-              prev.rosPackages
-              // lib.genAttrs cfg.rosDistros (
-                distro:
-                prev.rosPackages.${distro}.overrideScope (
-                  ros-final: ros-prev:
-                  lib.mapAttrs (
-                    name: override: ros-prev.${name}.overrideAttrs (override final ros-final)
-                  ) cfg.rosOverrides
-                  // lib.mapAttrs (_name: package: ros-final.callPackage package { }) cfg.rosPackages
+        overlays.default = lib.composeManyExtensions [
+          (
+            final: prev:
+            (lib.mapAttrs (_name: package: final.callPackage package { }) cfg.packages)
+            // {
+              pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+                (
+                  python-final: _python-prev:
+                  lib.mapAttrs (_name: package: python-final.callPackage package { }) cfg.pyPackages
                 )
-              );
-          };
+              ];
+
+              rosPackages =
+                prev.rosPackages
+                // lib.genAttrs cfg.rosDistros (
+                  distro:
+                  prev.rosPackages.${distro}.overrideScope (
+                    ros-final: _ros-prev:
+                    lib.mapAttrs (_name: package: ros-final.callPackage package { }) cfg.rosPackages
+                  )
+                );
+            }
+          )
+
+          (
+            final: prev:
+            (lib.mapAttrs (name: override: prev.${name}.override (override final)) cfg.overrides)
+            // {
+              pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+                (
+                  python-final: python-prev:
+                  lib.mapAttrs (
+                    name: override: python-prev.${name}.override (override final python-final)
+                  ) cfg.pyOverrides
+                )
+              ];
+
+              rosPackages =
+                prev.rosPackages
+                // lib.genAttrs cfg.rosDistros (
+                  distro:
+                  prev.rosPackages.${distro}.overrideScope (
+                    ros-final: ros-prev:
+                    lib.mapAttrs (name: override: ros-prev.${name}.override (override final ros-final)) cfg.rosOverrides
+                  )
+                );
+            }
+          )
+
+          (
+            final: prev:
+            (lib.mapAttrs (name: override: prev.${name}.overrideAttrs (override final)) cfg.overrideAttrs)
+            // {
+              pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+                (
+                  python-final: python-prev:
+                  lib.mapAttrs (
+                    name: override: python-prev.${name}.overrideAttrs (override final python-final)
+                  ) cfg.pyOverrideAttrs
+                )
+              ];
+
+              rosPackages =
+                prev.rosPackages
+                // lib.genAttrs cfg.rosDistros (
+                  distro:
+                  prev.rosPackages.${distro}.overrideScope (
+                    ros-final: ros-prev:
+                    lib.mapAttrs (
+                      name: override: ros-prev.${name}.overrideAttrs (override final ros-final)
+                    ) cfg.rosOverrideAttrs
+                  )
+                );
+            }
+          )
+        ];
       };
 
       perSystem =
@@ -388,43 +449,47 @@ in
         {
           devShells = {
             default = lib.mkDefault (
-              if (cfg.rosPackages == { } && cfg.rosOverrides == { }) then
+              if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
                 (buildGazebros2nixDevShell cfg.rosShellDistro pkgs self'.packages)
               else
                 (buildGazebros2nixRosDevShell cfg.rosShellDistro pkgs self'.packages)
             );
           }
-          // lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { }) (
-            lib.genAttrs' cfg.rosDistros (
-              distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell distro pkgs self'.packages)
-            )
-          );
+          //
+            lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
+              (
+                lib.genAttrs' cfg.rosDistros (
+                  distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell distro pkgs self'.packages)
+                )
+              );
 
           packages = {
             default = lib.mkDefault (
-              if (cfg.rosPackages == { } && cfg.rosOverrides == { }) then
+              if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
                 (buildGazebros2nixEnv cfg.rosShellDistro pkgs self'.packages)
               else
                 (buildGazebros2nixRosEnv cfg.rosShellDistro pkgs self'.packages)
             );
           }
-          // (lib.mapAttrs (name: _v: pkgs.${name}) (cfg.overrides // cfg.packages))
+          // (lib.mapAttrs (name: _v: pkgs.${name}) (cfg.packages // cfg.overrides // cfg.overrideAttrs))
           // (lib.mapAttrs' (name: _v: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name}) (
-            cfg.pyOverrides // cfg.pyPackages
+            cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs
           ))
           // (lib.listToAttrs (
             lib.mapCartesianProduct
               ({ distro, name }: lib.nameValuePair "ros-${distro}-${name}" pkgs.rosPackages.${distro}.${name})
               {
                 distro = cfg.rosDistros;
-                name = lib.attrNames (cfg.rosOverrides // cfg.rosPackages);
+                name = lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs);
               }
           ))
-          // lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { }) (
-            lib.genAttrs' cfg.rosDistros (
-              distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv distro pkgs self'.packages)
-            )
-          );
+          //
+            lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
+              (
+                lib.genAttrs' cfg.rosDistros (
+                  distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv distro pkgs self'.packages)
+                )
+              );
         }
 
         // lib.optionalAttrs cfg.pkgs {
