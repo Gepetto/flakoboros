@@ -127,6 +127,7 @@ rec {
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default shell";
+      preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
       packages = lib.attrValues (
@@ -170,6 +171,7 @@ rec {
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default devShell";
+      preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = lib.attrValues (
@@ -191,6 +193,7 @@ rec {
     in
     pkgs.mkShell {
       name = "flakoboros default ROS shell";
+      preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = [ shell ];
@@ -230,6 +233,7 @@ rec {
     in
     pkgs.mkShell {
       name = "flakoboros default ROS devShell";
+      preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = [ shell ];
