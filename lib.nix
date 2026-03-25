@@ -123,7 +123,7 @@ rec {
     pkgs.rosPackages.${distro}.ros2topic
   ];
 
-  buildGazebros2nixShell =
+  buildFlakoborosShell =
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default shell";
@@ -140,10 +140,10 @@ rec {
       );
     };
 
-  buildGazebros2nixEnv =
+  buildFlakoborosEnv =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixShell pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
       paths = lib.unique (
@@ -167,7 +167,7 @@ rec {
       postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
     };
 
-  buildGazebros2nixDevShell =
+  buildFlakoborosDevShell =
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default devShell";
@@ -185,11 +185,11 @@ rec {
       packages = lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
     };
 
-  buildGazebros2nixRosShell =
+  buildFlakoborosRosShell =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixShell pkgs distro packages;
-      env = buildGazebros2nixEnv pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
+      env = buildFlakoborosEnv pkgs distro packages;
     in
     pkgs.mkShell {
       name = "flakoboros default ROS shell";
@@ -201,10 +201,10 @@ rec {
       shellHook = rosShellHook pkgs env;
     };
 
-  buildGazebros2nixRosEnv =
+  buildFlakoborosRosEnv =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixDevShell pkgs distro packages;
+      shell = buildFlakoborosDevShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
       paths = lib.unique (
@@ -225,11 +225,11 @@ rec {
       );
     };
 
-  buildGazebros2nixRosDevShell =
+  buildFlakoborosRosDevShell =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixDevShell pkgs distro packages;
-      env = buildGazebros2nixRosEnv pkgs distro packages;
+      shell = buildFlakoborosDevShell pkgs distro packages;
+      env = buildFlakoborosRosEnv pkgs distro packages;
     in
     pkgs.mkShell {
       name = "flakoboros default ROS devShell";

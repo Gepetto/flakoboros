@@ -36,27 +36,27 @@ in
         ...
       }:
       let
-        buildGazebros2nixEnv' = self.lib.buildGazebros2nixEnv pkgs;
-        buildGazebros2nixRosEnv' = self.lib.buildGazebros2nixRosEnv pkgs;
-        buildGazebros2nixDevShell' = self.lib.buildGazebros2nixDevShell pkgs;
-        buildGazebros2nixRosDevShell' = self.lib.buildGazebros2nixRosDevShell pkgs;
+        buildFlakoborosEnv' = self.lib.buildFlakoborosEnv pkgs;
+        buildFlakoborosRosEnv' = self.lib.buildFlakoborosRosEnv pkgs;
+        buildFlakoborosDevShell' = self.lib.buildFlakoborosDevShell pkgs;
+        buildFlakoborosRosDevShell' = self.lib.buildFlakoborosRosDevShell pkgs;
       in
       {
         devShells = {
           default = lib.mkDefault (
-            (if hasRos then buildGazebros2nixRosDevShell' else buildGazebros2nixDevShell') cfg.rosShellDistro
+            (if hasRos then buildFlakoborosRosDevShell' else buildFlakoborosDevShell') cfg.rosShellDistro
               self'.packages
           );
         }
         // lib.optionalAttrs hasRos (
           lib.genAttrs' cfg.rosDistros (
-            distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell' distro self'.packages)
+            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell' distro self'.packages)
           )
         );
 
         packages = {
           default = lib.mkDefault (
-            (if hasRos then buildGazebros2nixRosEnv' else buildGazebros2nixEnv') cfg.rosShellDistro
+            (if hasRos then buildFlakoborosRosEnv' else buildFlakoborosEnv') cfg.rosShellDistro
               self'.packages
           );
         }
@@ -72,7 +72,7 @@ in
         ))
         // lib.optionalAttrs hasRos (
           lib.genAttrs' cfg.rosDistros (
-            distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv' distro self'.packages)
+            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosEnv' distro self'.packages)
           )
         );
       }
