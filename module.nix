@@ -33,34 +33,34 @@ in
         ...
       }:
       let
-        buildGazebros2nixEnv = self.lib.buildGazebros2nixEnv pkgs;
-        buildGazebros2nixRosEnv = self.lib.buildGazebros2nixRosEnv pkgs;
-        buildGazebros2nixDevShell = self.lib.buildGazebros2nixDevShell pkgs;
-        buildGazebros2nixRosDevShell = self.lib.buildGazebros2nixRosDevShell pkgs;
+        buildGazebros2nixEnv' = self.lib.buildGazebros2nixEnv pkgs;
+        buildGazebros2nixRosEnv' = self.lib.buildGazebros2nixRosEnv pkgs;
+        buildGazebros2nixDevShell' = self.lib.buildGazebros2nixDevShell pkgs;
+        buildGazebros2nixRosDevShell' = self.lib.buildGazebros2nixRosDevShell pkgs;
       in
       {
         devShells = {
           default = lib.mkDefault (
             if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
-              (buildGazebros2nixDevShell cfg.rosShellDistro self'.packages)
+              (buildGazebros2nixDevShell' cfg.rosShellDistro self'.packages)
             else
-              (buildGazebros2nixRosDevShell cfg.rosShellDistro self'.packages)
+              (buildGazebros2nixRosDevShell' cfg.rosShellDistro self'.packages)
           );
         }
         //
           lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
             (
               lib.genAttrs' cfg.rosDistros (
-                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell distro self'.packages)
+                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell' distro self'.packages)
               )
             );
 
         packages = {
           default = lib.mkDefault (
             if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
-              (buildGazebros2nixEnv cfg.rosShellDistro self'.packages)
+              (buildGazebros2nixEnv' cfg.rosShellDistro self'.packages)
             else
-              (buildGazebros2nixRosEnv cfg.rosShellDistro self'.packages)
+              (buildGazebros2nixRosEnv' cfg.rosShellDistro self'.packages)
           );
         }
         // (lib.mapAttrs (name: _v: pkgs.${name}) (cfg.packages // cfg.overrides // cfg.overrideAttrs))
@@ -79,7 +79,7 @@ in
           lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
             (
               lib.genAttrs' cfg.rosDistros (
-                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv distro self'.packages)
+                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv' distro self'.packages)
               )
             );
       }
