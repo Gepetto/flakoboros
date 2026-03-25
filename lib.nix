@@ -134,14 +134,16 @@ rec {
       preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
-      packages = lib.attrValues (
-        lib.filterAttrs (
-          n: v:
-          (n != "default")
-          && (cfg.filterPackages n v)
-          && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
-        ) packages
-      );
+      packages =
+        lib.attrValues (
+          lib.filterAttrs (
+            n: v:
+            (n != "default")
+            && (cfg.filterPackages n v)
+            && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
+          ) packages
+        )
+        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
     };
 
   /**
@@ -223,7 +225,7 @@ rec {
   buildFlakoborosRosEnv =
     pkgs: distro: packages:
     let
-      shell = buildFlakoborosDevShell pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
       paths = lib.unique (
@@ -234,14 +236,18 @@ rec {
           ++ (shell.propagatedBuildInputs or [ ])
         )
         ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
-        ++ lib.optional (
-          distro == "humble" || distro == "jazzy" || distro == "kilted"
-        ) pkgs.qt5.wrapQtAppsHook
+        ++ getRosBasePackages pkgs distro
+        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
+          pkgs.python3Packages.coal # TODO
+          pkgs.qt5.wrapQtAppsHook
+          pkgs.qt5.qtgraphicaleffects
+        ]
         ++ lib.optionals (distro == "rolling") [
           pkgs.qt6.wrapQtAppsHook
           pkgs.qt6.qtbase
         ]
       );
+      postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
     };
 
   /**
