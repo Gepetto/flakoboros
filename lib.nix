@@ -123,6 +123,10 @@ rec {
     pkgs.rosPackages.${distro}.ros2topic
   ];
 
+  /**
+    Build a shell with all packages,
+    except those excluded
+  */
   buildFlakoborosShell =
     pkgs: distro: packages:
     pkgs.mkShell {
@@ -140,6 +144,10 @@ rec {
       );
     };
 
+  /**
+    Build an env with all packages from `buildFlakoborosShell`,
+    plus extra Qt 5 or 6 things
+  */
   buildFlakoborosEnv =
     pkgs: distro: packages:
     let
@@ -167,6 +175,9 @@ rec {
       postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
     };
 
+  /**
+    Build a shell without the packages in `buildFlakoborosShell`, but with their dependencies
+  */
   buildFlakoborosDevShell =
     pkgs: distro: packages:
     pkgs.mkShell {
@@ -185,6 +196,11 @@ rec {
       packages = lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
     };
 
+  /**
+    Build a shell for ROS from `buildFlakoborosShell` and `buildFlakoborosEnv`
+
+    This is not used.
+  */
   buildFlakoborosRosShell =
     pkgs: distro: packages:
     let
@@ -201,6 +217,9 @@ rec {
       shellHook = rosShellHook pkgs env;
     };
 
+  /**
+    `buildFlakoborosEnv` plus ros base packages
+  */
   buildFlakoborosRosEnv =
     pkgs: distro: packages:
     let
@@ -225,6 +244,12 @@ rec {
       );
     };
 
+  /**
+    `buildFlakoborosDevShell` plus ros base packages
+
+    technically, we use `buildFlakoborosRosEnv` to set some ros path variables.
+    But that seem very wrong
+  */
   buildFlakoborosRosDevShell =
     pkgs: distro: packages:
     let
@@ -242,6 +267,9 @@ rec {
       shellHook = rosShellHook pkgs env;
     };
 
+  /**
+    Extract version from a structured file
+  */
   loadVersion =
     bin: path: pkgs: file:
     pkgs.lib.trim (
@@ -251,6 +279,14 @@ rec {
         } "${bin} -r ${path} ${file} > $out"
       )
     );
+
+  /**
+    Extract version from a ROS package.xml file
+  */
   rosVersion = loadVersion "xq" ".package.version";
+
+  /**
+    Extract version from a python pyproject.toml file
+  */
   pythonVersion = loadVersion "tomlq" ".project.version";
 }
