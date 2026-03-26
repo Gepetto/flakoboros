@@ -2,6 +2,9 @@
 
 Circular Packaging framework with nix Flakes, including ROS support
 
+> [!WARNING]
+> still early beta: API will change, things will break, and/or are already broken
+
 ## Goal
 
 When one package is defined in a flake, we can by default:
