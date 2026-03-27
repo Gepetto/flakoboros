@@ -123,27 +123,37 @@ rec {
     pkgs.rosPackages.${distro}.ros2topic
   ];
 
-  buildGazebros2nixShell =
+  /**
+    Build a shell with all packages,
+    except those excluded
+  */
+  buildFlakoborosShell =
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default shell";
       preferLocalBuild = false;
       __structuredAttrs = true;
       strictDeps = true;
-      packages = lib.attrValues (
-        lib.filterAttrs (
-          n: v:
-          (n != "default")
-          && (cfg.filterPackages n v)
-          && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
-        ) packages
-      );
+      packages =
+        lib.attrValues (
+          lib.filterAttrs (
+            n: v:
+            (n != "default")
+            && (cfg.filterPackages n v)
+            && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
+          ) packages
+        )
+        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
     };
 
-  buildGazebros2nixEnv =
+  /**
+    Build an env with all packages from `buildFlakoborosShell`,
+    plus extra Qt 5 or 6 things
+  */
+  buildFlakoborosEnv =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixShell pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
       paths = lib.unique (
@@ -167,7 +177,10 @@ rec {
       postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
     };
 
-  buildGazebros2nixDevShell =
+  /**
+    Build a shell without the packages in `buildFlakoborosShell`, but with their dependencies
+  */
+  buildFlakoborosDevShell =
     pkgs: distro: packages:
     pkgs.mkShell {
       name = "flakoboros default devShell";
@@ -185,11 +198,16 @@ rec {
       packages = lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
     };
 
-  buildGazebros2nixRosShell =
+  /**
+    Build a shell for ROS from `buildFlakoborosShell` and `buildFlakoborosEnv`
+
+    This is not used.
+  */
+  buildFlakoborosRosShell =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixShell pkgs distro packages;
-      env = buildGazebros2nixEnv pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
+      env = buildFlakoborosEnv pkgs distro packages;
     in
     pkgs.mkShell {
       name = "flakoboros default ROS shell";
@@ -201,10 +219,13 @@ rec {
       shellHook = rosShellHook pkgs env;
     };
 
-  buildGazebros2nixRosEnv =
+  /**
+    `buildFlakoborosEnv` plus ros base packages
+  */
+  buildFlakoborosRosEnv =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixDevShell pkgs distro packages;
+      shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
       paths = lib.unique (
@@ -215,21 +236,31 @@ rec {
           ++ (shell.propagatedBuildInputs or [ ])
         )
         ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
-        ++ lib.optional (
-          distro == "humble" || distro == "jazzy" || distro == "kilted"
-        ) pkgs.qt5.wrapQtAppsHook
+        ++ getRosBasePackages pkgs distro
+        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
+          pkgs.python3Packages.coal # TODO
+          pkgs.qt5.wrapQtAppsHook
+          pkgs.qt5.qtgraphicaleffects
+        ]
         ++ lib.optionals (distro == "rolling") [
           pkgs.qt6.wrapQtAppsHook
           pkgs.qt6.qtbase
         ]
       );
+      postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
     };
 
-  buildGazebros2nixRosDevShell =
+  /**
+    `buildFlakoborosDevShell` plus ros base packages
+
+    technically, we use `buildFlakoborosRosEnv` to set some ros path variables.
+    But that seem very wrong
+  */
+  buildFlakoborosRosDevShell =
     pkgs: distro: packages:
     let
-      shell = buildGazebros2nixDevShell pkgs distro packages;
-      env = buildGazebros2nixRosEnv pkgs distro packages;
+      shell = buildFlakoborosDevShell pkgs distro packages;
+      env = buildFlakoborosRosEnv pkgs distro packages;
     in
     pkgs.mkShell {
       name = "flakoboros default ROS devShell";
@@ -242,6 +273,9 @@ rec {
       shellHook = rosShellHook pkgs env;
     };
 
+  /**
+    Extract version from a structured file
+  */
   loadVersion =
     bin: path: pkgs: file:
     pkgs.lib.trim (
@@ -251,6 +285,14 @@ rec {
         } "${bin} -r ${path} ${file} > $out"
       )
     );
+
+  /**
+    Extract version from a ROS package.xml file
+  */
   rosVersion = loadVersion "xq" ".package.version";
+
+  /**
+    Extract version from a python pyproject.toml file
+  */
   pythonVersion = loadVersion "tomlq" ".project.version";
 }

@@ -23,8 +23,11 @@ in
 
     perSystem =
       let
-        pythonModules =
-          lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs) ++ cfg.extraPythonModules;
+        allNames = lib.attrNames (cfg.packages // cfg.overrides // cfg.overrideAttrs);
+        allPyNames = lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs);
+        allRosNames = lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs);
+        hasRos = allRosNames != [ ];
+        pythonModules = allPyNames ++ cfg.extraPythonModules;
       in
       {
         pkgs,
@@ -33,55 +36,44 @@ in
         ...
       }:
       let
-        buildGazebros2nixEnv' = self.lib.buildGazebros2nixEnv pkgs;
-        buildGazebros2nixRosEnv' = self.lib.buildGazebros2nixRosEnv pkgs;
-        buildGazebros2nixDevShell' = self.lib.buildGazebros2nixDevShell pkgs;
-        buildGazebros2nixRosDevShell' = self.lib.buildGazebros2nixRosDevShell pkgs;
+        buildFlakoborosEnv' = self.lib.buildFlakoborosEnv pkgs;
+        buildFlakoborosRosEnv' = self.lib.buildFlakoborosRosEnv pkgs;
+        buildFlakoborosDevShell' = self.lib.buildFlakoborosDevShell pkgs;
+        buildFlakoborosRosDevShell' = self.lib.buildFlakoborosRosDevShell pkgs;
       in
       {
         devShells = {
           default = lib.mkDefault (
-            if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
-              (buildGazebros2nixDevShell' cfg.rosShellDistro self'.packages)
-            else
-              (buildGazebros2nixRosDevShell' cfg.rosShellDistro self'.packages)
+            (if hasRos then buildFlakoborosRosDevShell' else buildFlakoborosDevShell') cfg.rosShellDistro
+              self'.packages
           );
         }
-        //
-          lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
-            (
-              lib.genAttrs' cfg.rosDistros (
-                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosDevShell' distro self'.packages)
-              )
-            );
+        // lib.optionalAttrs hasRos (
+          lib.genAttrs' cfg.rosDistros (
+            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell' distro self'.packages)
+          )
+        );
 
         packages = {
           default = lib.mkDefault (
-            if (cfg.rosPackages == { } && cfg.rosOverrides == { } && cfg.rosOverrideAttrs == { }) then
-              (buildGazebros2nixEnv' cfg.rosShellDistro self'.packages)
-            else
-              (buildGazebros2nixRosEnv' cfg.rosShellDistro self'.packages)
+            (if hasRos then buildFlakoborosRosEnv' else buildFlakoborosEnv') cfg.rosShellDistro self'.packages
           );
         }
-        // (lib.mapAttrs (name: _v: pkgs.${name}) (cfg.packages // cfg.overrides // cfg.overrideAttrs))
-        // (lib.mapAttrs' (name: _v: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name}) (
-          cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs
-        ))
+        // lib.getAttrs allNames pkgs
+        // lib.genAttrs' allPyNames (name: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name})
         // (lib.listToAttrs (
           lib.mapCartesianProduct
             ({ distro, name }: lib.nameValuePair "ros-${distro}-${name}" pkgs.rosPackages.${distro}.${name})
             {
               distro = cfg.rosDistros;
-              name = lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs);
+              name = allRosNames;
             }
         ))
-        //
-          lib.optionalAttrs (cfg.rosPackages != { } || cfg.rosOverrides != { } || cfg.rosOverrideAttrs != { })
-            (
-              lib.genAttrs' cfg.rosDistros (
-                distro: lib.nameValuePair "ros-${distro}" (buildGazebros2nixRosEnv' distro self'.packages)
-              )
-            );
+        // lib.optionalAttrs hasRos (
+          lib.genAttrs' cfg.rosDistros (
+            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosEnv' distro self'.packages)
+          )
+        );
       }
 
       // lib.optionalAttrs cfg.pkgs {
@@ -99,7 +91,9 @@ in
       // lib.optionalAttrs (pythonModules != [ ]) {
         apps.default = {
           type = "app";
-          program = pkgs.python3.withPackages (p: lib.attrVals (lib.uniqueStrings pythonModules) p);
+          program = lib.getExe pkgs.python3.withPackages (
+            p: lib.attrVals (lib.uniqueStrings pythonModules) p
+          );
         };
       }
 
