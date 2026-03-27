@@ -75,3 +75,5 @@ If you have ROS packages, the `default` package and devShell will use a default 
 - `nix run .#ros-rolling`
 
 Also, standard ROS tools like colcon and ros2cli will be included.
+
+![logo](./logo.svg)
