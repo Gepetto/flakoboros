@@ -1,11 +1,11 @@
 <img align="right" src="logo.svg" alt="logo">
 
-# flakoboros
-
 Circular Packaging framework with nix Flakes, including ROS support
 
 > [!WARNING]
 > still early beta: API will change, things will break, and/or are already broken
+
+# flakoboros
 
 ## Goal
 
