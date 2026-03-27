@@ -1,3 +1,5 @@
+<img align="right" src="logo.svg" alt="logo">
+
 # flakoboros
 
 Circular Packaging framework with nix Flakes, including ROS support
@@ -75,5 +77,3 @@ If you have ROS packages, the `default` package and devShell will use a default 
 - `nix run .#ros-rolling`
 
 Also, standard ROS tools like colcon and ros2cli will be included.
-
-![logo](./logo.svg)
