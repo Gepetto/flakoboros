@@ -57,7 +57,7 @@ outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (
   }
 ```
 
-(the full list is defined in <./options.nix>)
+(the full list is defined in [options.nix](./options.nix))
 
 This will:
 
