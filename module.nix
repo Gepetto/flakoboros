@@ -91,8 +91,8 @@ in
       // lib.optionalAttrs (pythonModules != [ ]) {
         apps.default = {
           type = "app";
-          program = lib.getExe pkgs.python3.withPackages (
-            p: lib.attrVals (lib.uniqueStrings pythonModules) p
+          program = lib.getExe (
+            pkgs.python3.withPackages (p: lib.attrVals (lib.uniqueStrings pythonModules) p)
           );
         };
       }
