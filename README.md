@@ -32,6 +32,8 @@ That notion of re-using an existing distribution of a package inside its source.
 
 ## API overview
 
+example for eigenpy:
+
 ```nix
 {
   description = "Bindings between Numpy and Eigen using Boost.Python";
