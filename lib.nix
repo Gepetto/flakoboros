@@ -156,6 +156,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
+      extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
           (shell.buildInputs or [ ])
@@ -228,6 +229,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
+      extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
           (shell.buildInputs or [ ])
