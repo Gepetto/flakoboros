@@ -16,6 +16,7 @@ rec {
       --unset QT_STYLE_OVERRIDE
       --prefix AMENT_PREFIX_PATH : $out
       --prefix LD_LIBRARY_PATH : $out/lib
+      --prefix PYTHONPATH : $out/lib/python3.13/site-packages:$out/lib/python3.14/site-packages
     ''
     + lib.optionalString (distro == "humble") ''
       --set-default IGN_IP 127.0.0.1
@@ -156,6 +157,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
+      extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
           (shell.buildInputs or [ ])
@@ -228,6 +230,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
     in
     pkgs.rosPackages.${distro}.buildEnv {
+      extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
           (shell.buildInputs or [ ])
