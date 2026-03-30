@@ -34,27 +34,30 @@ That notion of re-using an existing distribution of a package inside its source.
 
 ```nix
 {
-outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (
-  { lib, ... }:
-  {
-    systems = import inputs.systems;
-    imports = [
-      inputs.flakoboros.flakeModule
+  description = "Bindings between Numpy and Eigen using Boost.Python";
+
+  inputs = {
+    flakoboros.url = "github:gepetto/flakoboros";
+    flake-parts.follows = "flakoboros/flake-parts";
+    systems.follows = "flakoboros/systems";
+  };
+
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (
+      { lib, ... }:
       {
-        flakoboros = {
-          overrideAttrs.pinocchio = _final: {
+        systems = import inputs.systems;
+        imports = [
+          inputs.flakoboros.flakeModule
+          {
+            flakoboros.pyOverrideAttrs.eigenpy = _: _: {
             src = lib.cleanSource ./.;
-          };
-          pyOverrideAttrs.pinocchio = _final: pyFinal: (super: {
-            propagatedBuildInputs = super.propagatedBuildInputs ++ [
-              pyFinal.viser
-            ];
-          });
-        };
+          }
+        ];
       }
-    ];
-  });
-  }
+    );
+}
 ```
 
 (the full list is defined in [options.nix](./options.nix))
