@@ -54,7 +54,8 @@ example for eigenpy:
           inputs.flakoboros.flakeModule
           {
             flakoboros.pyOverrideAttrs.eigenpy = _: _: {
-            src = lib.cleanSource ./.;
+              src = lib.cleanSource ./.;
+            };
           }
         ];
       }
