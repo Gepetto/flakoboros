@@ -18,7 +18,7 @@ in
   config = {
     flake = {
       lib = import ./lib.nix { inherit config lib; };
-      overlays.default = import ./overlays.nix { inherit config lib; };
+      overlays.flakoboros = import ./overlays.nix { inherit config lib; };
     };
 
     perSystem =
@@ -82,7 +82,7 @@ in
           config = cfg.nixpkgsConfig;
           overlays = [
             nix-ros-overlay.overlays.default
-            self.overlays.default
+            self.overlays.flakoboros
           ]
           ++ cfg.overlays;
         };
