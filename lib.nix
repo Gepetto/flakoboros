@@ -254,6 +254,38 @@ rec {
     };
 
   /**
+    `buildFlakoborosRosEnv`, without the packages in `buildFlakoborosShell`, but with their dependencies
+  */
+  buildFlakoborosRosDevEnv =
+    pkgs: distro: packages:
+    let
+      shell = buildFlakoborosDevShell pkgs distro packages;
+    in
+    pkgs.rosPackages.${distro}.buildEnv {
+      extraOutputsToInstall = [ "out" ];
+      paths = lib.unique (
+        lib.filter lib.isDerivation (
+          (shell.buildInputs or [ ])
+          ++ (shell.nativeBuildInputs or [ ])
+          ++ (shell.propagatedNativeBuildInputs or [ ])
+          ++ (shell.propagatedBuildInputs or [ ])
+        )
+        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
+        ++ getRosBasePackages pkgs distro
+        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
+          pkgs.python3Packages.coal # TODO
+          pkgs.qt5.wrapQtAppsHook
+          pkgs.qt5.qtgraphicaleffects
+        ]
+        ++ lib.optionals (distro == "rolling") [
+          pkgs.qt6.wrapQtAppsHook
+          pkgs.qt6.qtbase
+        ]
+      );
+      postBuild = rosWrapperArgs pkgs distro;
+    };
+
+  /**
     `buildFlakoborosDevShell` plus ros base packages
 
     technically, we use `buildFlakoborosRosEnv` to set some ros path variables.
@@ -263,7 +295,7 @@ rec {
     pkgs: distro: packages:
     let
       shell = buildFlakoborosDevShell pkgs distro packages;
-      env = buildFlakoborosRosEnv pkgs distro packages;
+      env = buildFlakoborosRosDevEnv pkgs distro packages;
     in
     pkgs.mkShell {
       name = "flakoboros default ROS devShell";
