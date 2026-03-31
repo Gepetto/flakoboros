@@ -176,7 +176,7 @@ rec {
           pkgs.qt6.wrapQtAppsHook
         ]
       );
-      postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
+      postBuild = rosWrapperArgs pkgs distro;
     };
 
   /**
@@ -250,7 +250,7 @@ rec {
           pkgs.qt6.qtbase
         ]
       );
-      postBuild = rosWrapperArgs pkgs cfg.rosShellDistro;
+      postBuild = rosWrapperArgs pkgs distro;
     };
 
   /**
