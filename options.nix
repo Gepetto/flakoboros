@@ -82,9 +82,19 @@
     default = false;
   };
 
-  extraPythonModules = lib.mkOption {
+  extraPackages = lib.mkOption {
     type = lib.types.listOf lib.types.str;
-    description = "list of python modules to include in apps.default, in addition to pyPackages, pyOverrides & pyOverrideAttrs";
+    description = "list of packages to include in addition to packages, overrides & overrideAttrs";
+    default = [ ];
+  };
+  extraPyPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "list of python packages to include in addition to pyPackages, pyOverrides & pyOverrideAttrs";
+    default = [ ];
+  };
+  extraRosPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "list of ROS packages to include in addition to rosPackages, rosOverrides & rosOverrideAttrs";
     default = [ ];
   };
 }

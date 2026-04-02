@@ -23,11 +23,13 @@ in
 
     perSystem =
       let
-        allNames = lib.attrNames (cfg.packages // cfg.overrides // cfg.overrideAttrs);
-        allPyNames = lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs);
-        allRosNames = lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs);
+        allNames = lib.attrNames (cfg.packages // cfg.overrides // cfg.overrideAttrs) ++ cfg.extraPackages;
+        allPyNames =
+          lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs) ++ cfg.extraPyPackages;
+        allRosNames =
+          lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs) ++ cfg.extraRosPackages;
+        hasPy = allPyNames != [ ];
         hasRos = allRosNames != [ ];
-        pythonModules = allPyNames ++ cfg.extraPythonModules;
       in
       {
         pkgs,
@@ -88,12 +90,10 @@ in
         };
       }
 
-      // lib.optionalAttrs (pythonModules != [ ]) {
+      // lib.optionalAttrs hasPy {
         apps.default = {
           type = "app";
-          program = lib.getExe (
-            pkgs.python3.withPackages (p: lib.attrVals (lib.uniqueStrings pythonModules) p)
-          );
+          program = lib.getExe (pkgs.python3.withPackages (p: lib.attrVals allPyNames p));
         };
       }
 

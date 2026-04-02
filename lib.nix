@@ -144,7 +144,7 @@ rec {
             && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
           ) packages
         )
-        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
     };
 
   /**
@@ -165,7 +165,7 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
-        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
           pkgs.qt5.wrapQtAppsHook
@@ -197,7 +197,7 @@ rec {
           && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
         ) packages
       );
-      packages = lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
+      packages = lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
     };
 
   /**
@@ -238,7 +238,7 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
-        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
@@ -270,7 +270,7 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
-        ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
@@ -303,8 +303,7 @@ rec {
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = [ shell ];
-      packages =
-        getRosBasePackages pkgs distro ++ lib.attrVals cfg.extraPythonModules pkgs.python3Packages;
+      packages = getRosBasePackages pkgs distro ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
       shellHook = rosShellHook pkgs env;
     };
 
