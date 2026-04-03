@@ -1,3 +1,11 @@
+
+> [!WARNING]
+> This document is not yet complete
+
+
+> [!WARNING]
+> This document is not yet translated
+
 # Introduction au packaging circulaire
 
 Le logiciel commence généralement à l’état d’un dépôt de source (par exemple avec git), accompagné d’instructions de construction (par exemple avec cmake, uv ou cargo).
