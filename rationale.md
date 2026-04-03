@@ -59,7 +59,7 @@ En l’occurence, un fichier `flake.nix` comprenant par exemple:
         inputs.flakoboros.flakeModule
         {
           flakoboros = {
-            overrides.pinocchio = _: {
+            overrideAttrs.pinocchio = _: {
               src = lib.cleanSource ./.;  # ce "./." fait tout le travail
             };
           };
@@ -114,7 +114,7 @@ Avec flakoboros, cette situation se résoud plus rapidement et souplement en ind
          {
            flakoboros = {
 +            overlays = [ inputs.hpp-manipulation.overlays.default ];
-             pyOverrides.hpp-python = _: {
+             pyOverrideAttrs.hpp-python = _: {
                src = lib.cleanSource ./.;
              };
            };
@@ -147,6 +147,8 @@ TODO: reprendre HPP + Makefile
 Dans l’écosystème ROS, un `Workspace` est un dossier dans lequel on va cloner plusieurs dépôts de logiciels (qui peuvent éventuellement être eux-même des `méta-paquets`).
 
 TODO: vcstool, rappel colcon
+
+TODO: `fd package.xml -x xq .package.name | tr _ - | sort`
 
 
 # Références
