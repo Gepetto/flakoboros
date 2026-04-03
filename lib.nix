@@ -128,7 +128,9 @@ rec {
       export GAZEBO_VERSION
     ''
     + lib.optionalString (env != null && distro != "humble") ''
+      GZ_CONFIG_PATH=${env}/share/gz:''${GZ_CONFIG_PATH:+:$GZ_CONFIG_PATH}
       GZ_SIM_RESOURCE_PATH=${env}/share:''${GZ_SIM_RESOURCE_PATH:+:$GZ_SIM_RESOURCE_PATH}
+      export GZ_CONFIG_PATH
       export GZ_SIM_RESOURCE_PATH
     ''
     + ''
