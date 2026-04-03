@@ -201,27 +201,6 @@ rec {
     };
 
   /**
-    Build a shell for ROS from `buildFlakoborosShell` and `buildFlakoborosEnv`
-
-    This is not used.
-  */
-  buildFlakoborosRosShell =
-    pkgs: distro: packages:
-    let
-      shell = buildFlakoborosShell pkgs distro packages;
-      env = buildFlakoborosEnv pkgs distro packages;
-    in
-    pkgs.mkShell {
-      name = "flakoboros default ROS shell";
-      preferLocalBuild = false;
-      __structuredAttrs = true;
-      strictDeps = true;
-      inputsFrom = [ shell ];
-      packages = getRosBasePackages pkgs distro;
-      shellHook = rosShellHook pkgs env;
-    };
-
-  /**
     `buildFlakoborosEnv` plus ros base packages
   */
   buildFlakoborosRosEnv =
@@ -288,8 +267,7 @@ rec {
   /**
     `buildFlakoborosDevShell` plus ros base packages
 
-    technically, we use `buildFlakoborosRosEnv` to set some ros path variables.
-    But that seem very wrong
+    technically, we use `buildFlakoborosRosDevEnv` to set some ros path variables.
   */
   buildFlakoborosRosDevShell =
     pkgs: distro: packages:
