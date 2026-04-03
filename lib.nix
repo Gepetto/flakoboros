@@ -7,6 +7,19 @@ let
   distro = cfg.rosShellDistro;
 in
 rec {
+  ros2gz =
+    distro:
+    if distro == "humble" then
+      "fortress"
+    else if distro == "jazzy" then
+      "harmonic"
+    else if distro == "kilted" then
+      "ionic"
+    else if distro == "rolling" then
+      "jetty"
+    else
+      throw "wrong ros distro";
+
   rosWrapperArgs =
     pkgs: distro:
     ''
@@ -20,6 +33,7 @@ rec {
     ''
     + lib.optionalString (distro == "humble") ''
       --set-default IGN_IP 127.0.0.1
+      --set-default IGNITION_VERSION ${ros2gz distro}
       --prefix IGN_CONFIG_PATH : $out/share/ignition
       --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
     ''
@@ -44,6 +58,7 @@ rec {
     ''
     + lib.optionalString (distro != "humble") ''
       --set-default GZ_IP 127.0.0.1
+      --set-default GAZEBO_VERSION ${ros2gz distro}
       --prefix GZ_SIM_RESOURCE_PATH : $out/share
     ''
     + ''
@@ -65,7 +80,9 @@ rec {
     ''
     + lib.optionalString (distro == "humble") ''
       : ''${IGN_IP:=127.0.0.1}
+      : ''${IGNITION_VERSION:=${ros2gz distro}}
       export IGN_IP
+      export IGNITION_VERSION
     ''
     + lib.optionalString (env != null && distro == "humble") ''
       IGN_CONFIG_PATH=${env}/share/ignition:''${IGN_CONFIG_PATH:+:$IGN_CONFIG_PATH}
@@ -106,7 +123,9 @@ rec {
         ''
     + lib.optionalString (distro != "humble") ''
       : ''${GZ_IP:=127.0.0.1}
+      : ''${GAZEBO_VERSION:=${ros2gz distro}}
       export GZ_IP
+      export GAZEBO_VERSION
     ''
     + lib.optionalString (env != null && distro != "humble") ''
       GZ_SIM_RESOURCE_PATH=${env}/share:''${GZ_SIM_RESOURCE_PATH:+:$GZ_SIM_RESOURCE_PATH}
