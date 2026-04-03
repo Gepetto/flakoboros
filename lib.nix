@@ -144,7 +144,37 @@ rec {
             && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
           ) packages
         )
-        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
+        ++ lib.attrVals cfg.extraPackages pkgs
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
+    };
+
+  /**
+    Build a shell without the packages in `buildFlakoborosShell`, but with their dependencies
+  */
+  buildFlakoborosDevShell =
+    pkgs: distro: packages:
+    pkgs.mkShell {
+      name = "flakoboros default devShell";
+      preferLocalBuild = false;
+      __structuredAttrs = true;
+      strictDeps = true;
+      inputsFrom =
+        lib.attrValues (
+          lib.filterAttrs (
+            n: v:
+            (n != "default")
+            && (cfg.filterPackages n v)
+            && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
+          ) packages
+        )
+        ++ lib.attrVals cfg.extraDevPackages pkgs
+        ++ lib.attrVals cfg.extraDevPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraDevRosPackages pkgs.rosPackages.${distro};
+      packages =
+        lib.attrVals cfg.extraPackages pkgs
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
     };
 
   /**
@@ -165,7 +195,9 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
+        ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
           pkgs.qt5.wrapQtAppsHook
@@ -177,27 +209,6 @@ rec {
         ]
       );
       postBuild = rosWrapperArgs pkgs distro;
-    };
-
-  /**
-    Build a shell without the packages in `buildFlakoborosShell`, but with their dependencies
-  */
-  buildFlakoborosDevShell =
-    pkgs: distro: packages:
-    pkgs.mkShell {
-      name = "flakoboros default devShell";
-      preferLocalBuild = false;
-      __structuredAttrs = true;
-      strictDeps = true;
-      inputsFrom = lib.attrValues (
-        lib.filterAttrs (
-          n: v:
-          (n != "default")
-          && (cfg.filterPackages n v)
-          && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
-        ) packages
-      );
-      packages = lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
     };
 
   /**
@@ -217,7 +228,9 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
+        ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
@@ -249,7 +262,9 @@ rec {
           ++ (shell.propagatedNativeBuildInputs or [ ])
           ++ (shell.propagatedBuildInputs or [ ])
         )
+        ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
           pkgs.python3Packages.coal # TODO
@@ -281,7 +296,11 @@ rec {
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = [ shell ];
-      packages = getRosBasePackages pkgs distro ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages;
+      packages =
+        getRosBasePackages pkgs distro
+        ++ lib.attrVals cfg.extraPackages pkgs
+        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
+        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
       shellHook = rosShellHook pkgs env;
     };
 

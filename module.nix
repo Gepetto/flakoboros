@@ -28,8 +28,8 @@ in
           lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs) ++ cfg.extraPyPackages;
         allRosNames =
           lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs) ++ cfg.extraRosPackages;
-        hasPy = allPyNames != [ ];
-        hasRos = allRosNames != [ ];
+        hasPy = (allPyNames ++ cfg.extraDevPyPackages) != [ ];
+        hasRos = (allRosNames ++ cfg.extraDevRosPackages) != [ ];
       in
       {
         pkgs,
