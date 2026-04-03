@@ -67,7 +67,7 @@ example for eigenpy:
 
 This will:
 
-- define `overlays.default` with those overrides
+- define `overlays.flakoboros` with those overrides
 - (if you don't opt-out) instanciate `pkgs` with that overlay
 - inherit those in `packages.${system}.pinocchio` and `packages.${system}.py-pinocchio`
 - define `packages.${system}.default` as a `buildEnv` including all others `packages.${system}.*`  (for `nix build` & `nix shell`)

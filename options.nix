@@ -2,53 +2,85 @@
   lib,
 }:
 {
-  overlays = lib.mkOption {
-    description = "Additionnal overlays for flakoboros";
-    default = [ ];
-  };
-
   packages = lib.mkOption {
-    description = "packages to add in overlay";
+    description = "new packages to define";
     default = { };
   };
   pyPackages = lib.mkOption {
-    description = "python packages to add in overlay";
+    description = "new python packages to define";
     default = { };
   };
   rosPackages = lib.mkOption {
-    description = "ROS packages to add in overlay";
+    description = "new ROS packages to define";
     default = { };
   };
 
   overrides = lib.mkOption {
-    description = "attrSet of packages name/override to add in overlay";
+    description = "packages overrides";
     default = { };
   };
   pyOverrides = lib.mkOption {
-    description = "attrSet of python packages name/override to add in overlay";
+    description = "python packages overrides";
     default = { };
   };
   rosOverrides = lib.mkOption {
-    description = "attrSet of ROS packages name/override to add in overlay";
+    description = "ROS packages overrides";
     default = { };
   };
 
   overrideAttrs = lib.mkOption {
-    description = "attrSet of packages name/overrideAttrs to add in overlay";
+    description = "packages attrs override";
     default = { };
   };
   pyOverrideAttrs = lib.mkOption {
-    description = "attrSet of python packages name/overrideAttrs to add in overlay";
+    description = "python packages attrs override";
     default = { };
   };
   rosOverrideAttrs = lib.mkOption {
-    description = "attrSet of ROS packages name/overrideAttrs to add in overlay";
+    description = "ROS packages attrs override";
     default = { };
+  };
+
+  extraPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra packages to use in env and devShell";
+    default = [ ];
+  };
+  extraPyPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra python packages to use in env and devShell";
+    default = [ ];
+  };
+  extraRosPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra ROS packages to use in env and devShell";
+    default = [ ];
+  };
+
+  extraDevPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra packages to get dependencies from in devShells";
+    default = [ ];
+  };
+  extraDevPyPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra python packages to get dependencies from in devShells";
+    default = [ ];
+  };
+  extraDevRosPackages = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    description = "extra ROS packages to get dependencies from in devShells";
+    default = [ ];
+  };
+
+  overlays = lib.mkOption {
+    description = "Additionnal overlays";
+    default = [ ];
   };
 
   rosDistros = lib.mkOption {
     type = lib.types.listOf lib.types.str;
-    description = "List of ROS distributions to consider for rosOverrides & rosPackages overlay";
+    description = "ROS distributions to consider";
     default = [
       "humble"
       "jazzy"
@@ -58,33 +90,28 @@
   };
   rosShellDistro = lib.mkOption {
     type = lib.types.str;
-    description = "The ROS distribution of the default devShell and env";
+    description = "The ROS distribution of the default env and devShell";
     default = "rolling";
   };
 
   filterPackages = lib.mkOption {
-    description = "Function to filter the packages to include in default devShell and env";
+    description = "Function to filter the packages to include in default env and devShell";
     default = _n: _v: true;
   };
 
   pkgs = lib.mkOption {
     type = lib.types.bool;
-    description = "define pkgs from nixpkgs with overlays from nix-ros-overlay, flakoboros, and overlays";
+    description = "define pkgs from nixpkgs with overlays from nix-ros-overlay, flakoboros, and config.flakoboros.overlays";
     default = true;
   };
   nixpkgsConfig = lib.mkOption {
     description = "nixpkgs configuration in pkgs";
     default = { };
   };
+
   check = lib.mkOption {
     type = lib.types.bool;
     description = "build all packages and devShells in checks";
     default = false;
-  };
-
-  extraPythonModules = lib.mkOption {
-    type = lib.types.listOf lib.types.str;
-    description = "list of python modules to include in apps.default, in addition to pyPackages, pyOverrides & pyOverrideAttrs";
-    default = [ ];
   };
 }
