@@ -30,6 +30,8 @@ and you just need `my-package.overrideAttrs { src = lib.cleanSource ./. }` in th
 
 That notion of re-using an existing distribution of a package inside its source.
 
+More details in [rationale.md](./rationale.md)
+
 ## API overview
 
 example for eigenpy:
