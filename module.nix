@@ -44,24 +44,29 @@ in
         system,
         ...
       }:
+      let
+        inherit (self.lib)
+          buildFlakoborosEnv
+          buildFlakoborosRosEnv
+          buildFlakoborosDevShell
+          buildFlakoborosRosDevShell
+          ;
+      in
       {
         devShells = {
           default = lib.mkDefault (
-            (if hasRos then self.lib.buildFlakoborosRosDevShell else self.lib.buildFlakoborosDevShell) pkgs
-              cfg.rosShellDistro
+            (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs cfg.rosShellDistro
               self'.packages
           );
         }
         // lib.optionalAttrs hasRos (
           lib.genAttrs' cfg.rosDistros (
-            distro:
-            lib.nameValuePair "ros-${distro}" (self.lib.buildFlakoborosRosDevShell pkgs distro self'.packages)
+            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell pkgs distro self'.packages)
           )
         )
         // lib.mapAttrs (
           name: _:
-          (if hasRos then self.lib.buildFlakoborosRosDevShell else self.lib.buildFlakoborosDevShell)
-            pkgs."pkgs-${name}"
+          (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs."pkgs-${name}"
             cfg.rosShellDistro
             self'.packages."pkgs-${name}"
         ) cfg.extends;
@@ -82,15 +87,13 @@ in
               ))
               // lib.optionalAttrs hasRos (
                 lib.genAttrs' cfg.rosDistros (
-                  distro:
-                  lib.nameValuePair "ros-${distro}" (self.lib.buildFlakoborosRosEnv pkgs distro self'.packages)
+                  distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosEnv pkgs distro self'.packages)
                 )
               );
           in
           {
             default = lib.mkDefault (
-              (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs
-                cfg.rosShellDistro
+              (if hasRos then buildFlakoborosRosEnv else buildFlakoborosEnv) pkgs cfg.rosShellDistro
                 self'.packages
             );
           }
@@ -101,7 +104,7 @@ in
               let
                 packages = genPackages pkgs."pkgs-${name}";
                 default =
-                  (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs."pkgs-${name}"
+                  (if hasRos then buildFlakoborosRosEnv else buildFlakoborosEnv) pkgs."pkgs-${name}"
                     cfg.rosShellDistro
                     packages;
               in
