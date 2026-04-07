@@ -64,11 +64,13 @@ in
             distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell pkgs distro self'.packages)
           )
         )
-        // lib.mapAttrs (
+        // lib.mapAttrs' (
           name: _:
-          (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs."pkgs-${name}"
-            cfg.rosShellDistro
-            self'.packages."pkgs-${name}"
+          lib.nameValuePair ("pkgs-" + name) (
+            (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs."pkgs-${name}"
+              cfg.rosShellDistro
+              self'.packages."pkgs-${name}"
+          )
         ) cfg.extends;
 
         packages =
