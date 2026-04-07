@@ -78,7 +78,7 @@
     default = [ ];
   };
   extends = lib.mkOption {
-    description = "overlays to define alternate `pkgs`";
+    description = "overlays to define alternate `pkgs-*`";
     default = { };
   };
 
