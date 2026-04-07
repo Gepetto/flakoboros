@@ -44,57 +44,79 @@ in
         system,
         ...
       }:
-      let
-        buildFlakoborosEnv' = self.lib.buildFlakoborosEnv pkgs;
-        buildFlakoborosRosEnv' = self.lib.buildFlakoborosRosEnv pkgs;
-        buildFlakoborosDevShell' = self.lib.buildFlakoborosDevShell pkgs;
-        buildFlakoborosRosDevShell' = self.lib.buildFlakoborosRosDevShell pkgs;
-      in
       {
         devShells = {
           default = lib.mkDefault (
-            (if hasRos then buildFlakoborosRosDevShell' else buildFlakoborosDevShell') cfg.rosShellDistro
+            (if hasRos then self.lib.buildFlakoborosRosDevShell else self.lib.buildFlakoborosDevShell) pkgs
+              cfg.rosShellDistro
               self'.packages
           );
         }
         // lib.optionalAttrs hasRos (
           lib.genAttrs' cfg.rosDistros (
-            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell' distro self'.packages)
+            distro:
+            lib.nameValuePair "ros-${distro}" (self.lib.buildFlakoborosRosDevShell pkgs distro self'.packages)
           )
-        );
+        )
+        // lib.mapAttrs (
+          name: _:
+          (if hasRos then self.lib.buildFlakoborosRosDevShell else self.lib.buildFlakoborosDevShell)
+            pkgs."pkgs-${name}"
+            cfg.rosShellDistro
+            self'.packages."pkgs-${name}"
+        ) cfg.extends;
 
-        packages = {
-          default = lib.mkDefault (
-            (if hasRos then buildFlakoborosRosEnv' else buildFlakoborosEnv') cfg.rosShellDistro self'.packages
+        packages =
+          let
+            genPackages =
+              pkgs:
+              {
+                default = lib.mkDefault (
+                  (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs
+                    cfg.rosShellDistro
+                    self'.packages
+                );
+              }
+              // lib.getAttrs allNames pkgs
+              // lib.genAttrs' allPyNames (name: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name})
+              // (lib.listToAttrs (
+                lib.mapCartesianProduct
+                  ({ distro, name }: lib.nameValuePair "ros-${distro}-${name}" pkgs.rosPackages.${distro}.${name})
+                  {
+                    distro = cfg.rosDistros;
+                    name = allRosNames;
+                  }
+              ))
+              // lib.optionalAttrs hasRos (
+                lib.genAttrs' cfg.rosDistros (
+                  distro:
+                  lib.nameValuePair "ros-${distro}" (self.lib.buildFlakoborosRosEnv pkgs distro self'.packages)
+                )
+              );
+          in
+          genPackages pkgs
+          // lib.genAttrs' (lib.attrNames cfg.extends) (
+            name: lib.nameValuePair ("pkgs-" + name) (genPackages pkgs."pkgs-${name}")
           );
-        }
-        // lib.getAttrs allNames pkgs
-        // lib.genAttrs' allPyNames (name: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name})
-        // (lib.listToAttrs (
-          lib.mapCartesianProduct
-            ({ distro, name }: lib.nameValuePair "ros-${distro}-${name}" pkgs.rosPackages.${distro}.${name})
-            {
-              distro = cfg.rosDistros;
-              name = allRosNames;
-            }
-        ))
-        // lib.optionalAttrs hasRos (
-          lib.genAttrs' cfg.rosDistros (
-            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosEnv' distro self'.packages)
-          )
-        );
       }
 
       // lib.optionalAttrs cfg.pkgs {
-        _module.args.pkgs = import nixpkgs {
-          inherit system;
-          config = cfg.nixpkgsConfig;
-          overlays = [
-            nix-ros-overlay.overlays.default
-            self.overlays.flakoboros
-          ]
-          ++ cfg.overlays;
-        };
+        _module.args.pkgs =
+          let
+            base = import nixpkgs {
+              inherit system;
+              config = cfg.nixpkgsConfig;
+              overlays = [
+                nix-ros-overlay.overlays.default
+                self.overlays.flakoboros
+              ]
+              ++ cfg.overlays;
+            };
+          in
+          base
+          // lib.mapAttrs' (
+            name: overlay: lib.nameValuePair ("pkgs-" + name) (base.extend overlay)
+          ) cfg.extends;
       }
 
       // lib.optionalAttrs hasPy {

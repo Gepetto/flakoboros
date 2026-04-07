@@ -163,6 +163,7 @@ rec {
             (n != "default")
             && (cfg.filterPackages n v)
             && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
+            && (!lib.hasPrefix "pkgs-" n)
           ) packages
         )
         ++ lib.attrVals cfg.extraPackages pkgs
@@ -187,6 +188,7 @@ rec {
             (n != "default")
             && (cfg.filterPackages n v)
             && ((!lib.hasPrefix "ros-" n) || lib.hasPrefix "ros-${distro}-" n)
+            && (!lib.hasPrefix "pkgs-" n)
           ) packages
         )
         ++ lib.attrVals cfg.extraDevPackages pkgs
