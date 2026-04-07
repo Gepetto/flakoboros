@@ -69,7 +69,7 @@ in
           lib.nameValuePair ("pkgs-" + name) (
             (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs."pkgs-${name}"
               cfg.rosShellDistro
-              self'.packages."pkgs-${name}"
+              self'.packages."pkgs-${name}".passthru
           )
         ) cfg.extends;
 
