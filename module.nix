@@ -70,14 +70,7 @@ in
           let
             genPackages =
               pkgs:
-              {
-                default = lib.mkDefault (
-                  (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs
-                    cfg.rosShellDistro
-                    self'.packages
-                );
-              }
-              // lib.getAttrs allNames pkgs
+              lib.getAttrs allNames pkgs
               // lib.genAttrs' allPyNames (name: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name})
               // (lib.listToAttrs (
                 lib.mapCartesianProduct
@@ -94,9 +87,26 @@ in
                 )
               );
           in
-          genPackages pkgs
+          {
+            default = lib.mkDefault (
+              (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs
+                cfg.rosShellDistro
+                self'.packages
+            );
+          }
+          // genPackages pkgs
           // lib.genAttrs' (lib.attrNames cfg.extends) (
-            name: lib.nameValuePair ("pkgs-" + name) (genPackages pkgs."pkgs-${name}")
+            name:
+            lib.nameValuePair ("pkgs-" + name) (
+              let
+                packages = genPackages pkgs."pkgs-${name}";
+                default =
+                  (if hasRos then self.lib.buildFlakoborosRosEnv else self.lib.buildFlakoborosEnv) pkgs."pkgs-${name}"
+                    cfg.rosShellDistro
+                    packages;
+              in
+              default.overrideAttrs { passthru = packages; }
+            )
           );
       }
 
