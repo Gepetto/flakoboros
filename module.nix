@@ -23,11 +23,18 @@ in
 
     perSystem =
       let
-        allNames = lib.attrNames (cfg.packages // cfg.overrides // cfg.overrideAttrs) ++ cfg.extraPackages;
+        allNames =
+          lib.attrNames (cfg.packages // cfg.overrides // cfg.overrideAttrs)
+          ++ cfg.extraPackages
+          ++ cfg.extraDevPackages;
         allPyNames =
-          lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs) ++ cfg.extraPyPackages;
+          lib.attrNames (cfg.pyPackages // cfg.pyOverrides // cfg.pyOverrideAttrs)
+          ++ cfg.extraPyPackages
+          ++ cfg.extraDevPyPackages;
         allRosNames =
-          lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs) ++ cfg.extraRosPackages;
+          lib.attrNames (cfg.rosPackages // cfg.rosOverrides // cfg.rosOverrideAttrs)
+          ++ cfg.extraRosPackages
+          ++ cfg.extraDevRosPackages;
         hasPy = (allPyNames ++ cfg.extraDevPyPackages) != [ ];
         hasRos = (allRosNames ++ cfg.extraDevRosPackages) != [ ];
       in
