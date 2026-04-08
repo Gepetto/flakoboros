@@ -18,7 +18,10 @@ in
   config = {
     flake = {
       lib = import ./lib.nix { inherit config lib; };
-      overlays.flakoboros = import ./overlays.nix { inherit config lib; };
+      overlays = {
+        flakoboros = import ./overlays.nix { inherit config lib; };
+      }
+      // cfg.extends;
     };
 
     perSystem =
