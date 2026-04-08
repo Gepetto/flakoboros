@@ -77,6 +77,10 @@
     description = "Additionnal overlays";
     default = [ ];
   };
+  extends = lib.mkOption {
+    description = "overlays to define alternate `pkgs-*`";
+    default = { };
+  };
 
   rosDistros = lib.mkOption {
     type = lib.types.listOf lib.types.str;
