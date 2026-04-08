@@ -105,6 +105,6 @@ This will:
 - add scoped everything else, eg. `packages.${system}.pkgs-eigen5.py-eigenpy` (technically `packages.${system}.pkgs-eigen5.passthru.py-eigenpy`)
 - define `devShells.${system}.pkgs-eigen5`
 
-So in you CI, you can build `.` and `.#pkgs-eigen5` to check all you stack with both eigen 3.4.1 and 5.0.1.
+So in your CI, you can build `.` and `.#pkgs-eigen5` to check all your stack with both eigen 3.4.1 and 5.0.1.
 
 Also, you can either `echo 'use flake .' > .envrc` or `echo 'use flake .#pkgs-eigen5' > .envrc`, and follow your usual `cmake -B build && cmake --build build` workflow.
