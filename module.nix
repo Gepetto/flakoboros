@@ -116,22 +116,20 @@ in
       }
 
       // lib.optionalAttrs cfg.pkgs {
-        _module.args.pkgs =
-          let
-            base = import nixpkgs {
-              inherit system;
-              config = cfg.nixpkgsConfig;
-              overlays = [
-                nix-ros-overlay.overlays.default
-                self.overlays.flakoboros
-              ]
-              ++ cfg.overlays;
-            };
-          in
-          base
-          // lib.mapAttrs' (
-            name: overlay: lib.nameValuePair ("pkgs-" + name) (base.extend overlay)
-          ) cfg.extends;
+        _module.args = {
+          pkgs = import nixpkgs {
+            inherit system;
+            config = cfg.nixpkgsConfig;
+            overlays = [
+              nix-ros-overlay.overlays.default
+              self.overlays.flakoboros
+            ]
+            ++ cfg.overlays;
+          };
+        }
+        // lib.mapAttrs' (
+          name: overlay: lib.nameValuePair ("pkgs-" + name) (pkgs.extend overlay)
+        ) cfg.extends;
       }
 
       // lib.optionalAttrs hasPy {
