@@ -116,8 +116,8 @@ in
       }
 
       // lib.optionalAttrs cfg.pkgs {
-        _module.args = {
-          pkgs = import nixpkgs {
+        _module.args.pkgs =
+          import nixpkgs {
             inherit system;
             config = cfg.nixpkgsConfig;
             overlays = [
@@ -125,11 +125,10 @@ in
               self.overlays.flakoboros
             ]
             ++ cfg.overlays;
-          };
-        }
-        // lib.mapAttrs' (
-          name: overlay: lib.nameValuePair ("pkgs-" + name) (pkgs.extend overlay)
-        ) cfg.extends;
+          }
+          // lib.mapAttrs' (
+            name: overlay: lib.nameValuePair ("pkgs-" + name) (pkgs.extend overlay)
+          ) cfg.extends;
       }
 
       // lib.optionalAttrs hasPy {
