@@ -125,9 +125,11 @@ in
             config = cfg.nixpkgsConfig;
             overlays = [
               nix-ros-overlay.overlays.default
-              self.overlays.flakoboros
             ]
-            ++ cfg.overlays;
+            ++ cfg.overlays
+            ++ [
+              self.overlays.flakoboros
+            ];
           }
           // lib.mapAttrs' (
             name: overlay: lib.nameValuePair ("pkgs-" + name) (pkgs.extend overlay)
