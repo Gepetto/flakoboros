@@ -55,7 +55,7 @@ example for eigenpy:
         imports = [
           inputs.flakoboros.flakeModule
           {
-            flakoboros.pyOverrideAttrs.eigenpy = _: _: {
+            flakoboros.pyOverrideAttrs.eigenpy = {
               src = lib.cleanSource ./.;
             };
           }
@@ -90,8 +90,8 @@ Also, standard ROS tools like colcon and ros2cli will be included.
 
 ```nix
 flakoboros = {
-  extends.eigen5 = final: _prev: { eigen = final.eigen_5; };
-  pyOverrideAttrs.eigenpy = _final: _python-final: {
+  extends.eigen5 = final: { eigen = final.eigen_5; };
+  pyOverrideAttrs.eigenpy = {
     src = lib.cleanSource ./.;
   };
 };
