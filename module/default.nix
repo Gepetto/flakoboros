@@ -18,10 +18,9 @@ in
   config = {
     flake = {
       lib = import ../lib { inherit config lib; };
-      overlays = {
+      overlays = cfg.extends // {
         flakoboros = import ../overlays { inherit config lib; };
-      }
-      // cfg.extends;
+      };
     };
 
     perSystem =
@@ -48,76 +47,33 @@ in
         ...
       }:
       let
-        inherit (self.lib)
+        inherit (self.lib.mkLibFlakoboros config)
           buildFlakoborosEnv
           buildFlakoborosRosEnv
           buildFlakoborosDevShell
           buildFlakoborosRosDevShell
           ;
+        ctx = {
+          inherit
+            lib
+            cfg
+            pkgs
+            self'
+            allNames
+            allPyNames
+            allRosNames
+            hasRos
+            ;
+          flakoborosEnv = if hasRos then buildFlakoborosRosEnv else buildFlakoborosEnv;
+          flakoborosDevShell = if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell;
+        };
       in
       {
-        devShells = {
-          default = lib.mkDefault (
-            (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs cfg.rosShellDistro
-              self'.packages
-          );
-        }
-        // lib.optionalAttrs hasRos (
-          lib.genAttrs' cfg.rosDistros (
-            distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosDevShell pkgs distro self'.packages)
-          )
-        )
-        // lib.mapAttrs' (
-          name: _:
-          lib.nameValuePair ("pkgs-" + name) (
-            (if hasRos then buildFlakoborosRosDevShell else buildFlakoborosDevShell) pkgs."pkgs-${name}"
-              cfg.rosShellDistro
-              self'.packages."pkgs-${name}".passthru
-          )
-        ) cfg.extends;
-
-        packages =
-          let
-            genPackages =
-              pkgs:
-              lib.getAttrs allNames pkgs
-              // lib.genAttrs' allPyNames (name: lib.nameValuePair "py-${name}" pkgs.python3Packages.${name})
-              // (lib.listToAttrs (
-                lib.mapCartesianProduct
-                  ({ distro, name }: lib.nameValuePair "ros-${distro}-${name}" pkgs.rosPackages.${distro}.${name})
-                  {
-                    distro = cfg.rosDistros;
-                    name = allRosNames;
-                  }
-              ))
-              // lib.optionalAttrs hasRos (
-                lib.genAttrs' cfg.rosDistros (
-                  distro: lib.nameValuePair "ros-${distro}" (buildFlakoborosRosEnv pkgs distro self'.packages)
-                )
-              );
-          in
-          {
-            default = lib.mkDefault (
-              (if hasRos then buildFlakoborosRosEnv else buildFlakoborosEnv) pkgs cfg.rosShellDistro
-                self'.packages
-            );
-          }
-          // genPackages pkgs
-          // lib.genAttrs' (lib.attrNames cfg.extends) (
-            name:
-            lib.nameValuePair ("pkgs-" + name) (
-              let
-                packages = genPackages pkgs."pkgs-${name}";
-                default =
-                  (if hasRos then buildFlakoborosRosEnv else buildFlakoborosEnv) pkgs."pkgs-${name}"
-                    cfg.rosShellDistro
-                    packages;
-              in
-              default.overrideAttrs { passthru = packages; }
-            )
-          );
+        devShells = import ./dev-shells.nix ctx;
+        packages = import ./packages.nix ctx;
       }
-
+      // lib.optionalAttrs hasPy { apps = import ./apps.nix ctx; }
+      // lib.optionalAttrs cfg.check { checks = import ./checks.nix ctx; }
       // lib.optionalAttrs cfg.pkgs {
         _module.args.pkgs =
           import nixpkgs {
@@ -134,23 +90,6 @@ in
           // lib.mapAttrs' (
             name: overlay: lib.nameValuePair ("pkgs-" + name) (pkgs.extend overlay)
           ) cfg.extends;
-      }
-
-      // lib.optionalAttrs hasPy {
-        apps.default = {
-          type = "app";
-          program = lib.getExe (pkgs.python3.withPackages (p: lib.attrVals allPyNames p));
-        };
-      }
-
-      // lib.optionalAttrs cfg.check {
-        # Build all available packages and devShells. Useful for CI.
-        checks =
-          let
-            devShells = lib.mapAttrs' (n: lib.nameValuePair "devShell-${n}") self'.devShells;
-            packages = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") self'.packages;
-          in
-          lib.filterAttrs (_n: v: v.meta.available && !v.meta.broken) (devShells // packages);
       };
   };
 }
