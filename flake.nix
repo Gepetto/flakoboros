@@ -13,7 +13,7 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } (
-      { ... }:
+      { lib, ... }:
       let
         flakeModule = inputs.flake-parts.lib.importApply ./module {
           inherit (inputs) nixpkgs nix-ros-overlay;
@@ -21,7 +21,10 @@
       in
       {
         systems = import inputs.systems;
-        flake = { inherit flakeModule; };
+        flake = {
+          inherit flakeModule;
+          lib = import ./lib { inherit lib; };
+        };
         imports = [
           inputs.treefmt-nix.flakeModule
           flakeModule
