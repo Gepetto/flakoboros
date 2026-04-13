@@ -13,13 +13,13 @@ let
   cfg = config.flakoboros;
 in
 {
-  options.flakoboros = import ./options.nix { inherit lib; };
+  options.flakoboros = import ../options.nix { inherit lib; };
 
   config = {
     flake = {
-      lib = import ./lib.nix { inherit config lib; };
+      lib = import ../lib { inherit config lib; };
       overlays = {
-        flakoboros = import ./overlays.nix { inherit config lib; };
+        flakoboros = import ../overlays { inherit config lib; };
       }
       // cfg.extends;
     };

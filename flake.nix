@@ -15,7 +15,7 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } (
       { ... }:
       let
-        flakeModule = inputs.flake-parts.lib.importApply ./module.nix {
+        flakeModule = inputs.flake-parts.lib.importApply ./module {
           inherit (inputs) nixpkgs nix-ros-overlay;
         };
       in
