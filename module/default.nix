@@ -16,11 +16,8 @@ in
   options.flakoboros = import ../options.nix { inherit lib; };
 
   config = {
-    flake = {
-      lib = import ../lib { inherit config lib; };
-      overlays = cfg.extends // {
-        flakoboros = import ../overlays { inherit config lib; };
-      };
+    flake.overlays = cfg.extends // {
+      flakoboros = import ../overlays { inherit config lib; };
     };
 
     perSystem =
@@ -47,7 +44,7 @@ in
         ...
       }:
       let
-        inherit (self.lib.mkLibFlakoboros config)
+        inherit ((import ../lib { inherit lib; }).mkLibFlakoboros config)
           buildFlakoborosEnv
           buildFlakoborosRosEnv
           buildFlakoborosDevShell
