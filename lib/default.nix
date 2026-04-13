@@ -3,6 +3,9 @@
   ...
 }:
 rec {
+  /**
+    mapping of recommended Gazebo distro per ROS distro
+  */
   ros2gz =
     distro:
     if distro == "humble" then
@@ -16,6 +19,9 @@ rec {
     else
       throw "wrong ros distro";
 
+  /**
+    set many env vars in a makeWrapperArgs format for postBuild
+  */
   rosWrapperArgs =
     pkgs: distro:
     ''
@@ -61,6 +67,9 @@ rec {
       )
     '';
 
+  /**
+    set many env vars in a bash format for pkgs.mkShell { shellHook = … }
+  */
   rosShellHook =
     pkgs: distro: env:
     ''
@@ -133,6 +142,11 @@ rec {
       test -f install/local_setup.bash && source install/local_setup.bash
     '';
 
+  /**
+    get a list of common ros packages.
+
+    Don't hesitate to contact us to extend this list !
+  */
   getRosBasePackages = pkgs: distro: [
     pkgs.colcon
     pkgs.rosPackages.${distro}.ros2action
