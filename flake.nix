@@ -23,7 +23,20 @@
         systems = import inputs.systems;
         flake = {
           inherit flakeModule;
-          lib = import ./lib { inherit lib; };
+          lib = import ./lib { inherit lib; } // {
+            /**
+              Shortcut for flake-parts.lib.mkFlake
+            */
+            mkFlakoboros =
+              module:
+              inputs.flake-parts.lib.mkFlake { inherit inputs; } (args: {
+                systems = inputs.systems;
+                imports = [
+                  flakeModule
+                  { flakoboros = module args; }
+                ];
+              });
+          };
         };
         imports = [
           inputs.treefmt-nix.flakeModule
