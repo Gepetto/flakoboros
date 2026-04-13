@@ -40,6 +40,28 @@ example for eigenpy:
 {
   description = "Bindings between Numpy and Eigen using Boost.Python";
 
+  inputs.flakoboros.url = "github:gepetto/flakoboros";
+
+  outputs =
+    inputs:
+    inputs.flakoboros.lib.mkFlakoboros (
+      { lib, ... }:
+      {
+        pyOverrideAttrs.eigenpy = {
+          src = lib.cleanSource ./.;
+        };
+      }
+    );
+}
+```
+
+<details>
+<summary>Behind the scene, this is a shallow wrapper around `flake-parts.lib.mkFlake`, which can be used directly</summary>
+
+```nix
+{
+  description = "Bindings between Numpy and Eigen using Boost.Python";
+
   inputs = {
     flakoboros.url = "github:gepetto/flakoboros";
     flake-parts.follows = "flakoboros/flake-parts";
@@ -64,6 +86,7 @@ example for eigenpy:
     );
 }
 ```
+</details>
 
 (the full list is defined in [options.nix](./options.nix))
 
