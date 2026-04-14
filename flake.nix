@@ -28,7 +28,7 @@
               Shortcut for flake-parts.lib.mkFlake
             */
             mkFlakoboros =
-              module:
+              inputs: module:
               inputs.flake-parts.lib.mkFlake { inherit inputs; } (args: {
                 systems = import inputs.systems;
                 imports = [
