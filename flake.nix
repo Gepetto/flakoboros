@@ -30,7 +30,7 @@
             mkFlakoboros =
               module:
               inputs.flake-parts.lib.mkFlake { inherit inputs; } (args: {
-                systems = inputs.systems;
+                systems = import inputs.systems;
                 imports = [
                   flakeModule
                   { flakoboros = module args; }
