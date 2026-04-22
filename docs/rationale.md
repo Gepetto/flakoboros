@@ -1,3 +1,4 @@
+# Rationale
 
 > [!WARNING]
 > This document is not yet complete
@@ -6,7 +7,7 @@
 > [!WARNING]
 > This document is not yet translated
 
-# Introduction au packaging circulaire
+## Introduction au packaging circulaire
 
 Le logiciel commence généralement à l’état d’un dépôt de source (par exemple avec git), accompagné d’instructions de construction (par exemple avec cmake, uv ou cargo).
 
@@ -18,13 +19,13 @@ Mais si on regarde de plus près, il est clair qu'avant même de commencer à d�
 
 Il nous parait donc intéressant de refermer la boucle, et d’intégrer au mieux la distribution dans la source. Nous verrons que cela facilite à son tour l’intégration de la source dans la distribution dans une boucle vertueuse, et améliore plusieurs aspects du développement, de la maintenance et de l’utilisation des logiciels.
 
-# Présentation de Flakoboros
+## Présentation de Flakoboros
 
 Pour concrétiser ces idées, nous prendrons l’example de Flakoboros, une framework fondé sur le langage nix, avec son paradigme de flake, et sa distribution nixpkgs.
 
 Flakoboros a pour objectif de fournir une implémentation de packaging circulaire afin de faciliter le développement, la maintenance et la distribution des logiciels produits et utilisés par le groupe de recherche en robotique Gepetto du LAAS-CNRS. Il s’agit donc principalement de gérer les écosystèmes C++ et python (bien que l’intégration de rust soit sérieusement à l’étude), ainsi que les différentes versions de la distribution ROS.
 
-## Introduction (très rapide) à Nix
+### Introduction (très rapide) à Nix
 
 Nix est une implémentation du "Modèle de déploiement logiciel purement fonctionnel" (ref. dolstra-2006). Les paquets sont écrits dans un Domain-Specific Language qui ressemble au json, mais où une architecture en appels de fonctions fainéantes permet simplement de modifier toutes les données de la distribution.
 
@@ -34,7 +35,7 @@ NB: ces travaux ont été réalisés avec Nix, mais une implémentation basée s
 
 L’un des avantages de Nix est sa distribution nixpkgs qui a une très bonne et très vaste couverture des différents langages de programmation et ecosystèmes logiciels, intègre une distribution linux (NixOS) et un support de MacOS, et est maintenue très à jour par de très nombreux contributeurs pratiquant sérieusement le peer-reviewing (ref. repology-graph).
 
-## Example d’utilisation de Flakoboros avec Pinocchio
+### Example d’utilisation de Flakoboros avec Pinocchio
 
 Pinocchio est un logiciel issu de l’équipe Gepetto du LAAS-CNRS (Toulouse) et aujourd’hui principalement développé par l’équipe Willow de l’INRIA (Paris), qui est packagé et distribué à travers plusieurs gestionnaires de paquets et distributions logicielles, et notamment nix et nixpkgs.
 
@@ -45,39 +46,29 @@ En l’occurence, un fichier `flake.nix` comprenant par exemple:
 ```nix
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
     flakoboros.url = "github:gepetto/flakoboros";
-    flake-parts.follows = "flakoboros/flake-parts";
-    systems.follows = "flakoboros/systems";
+    nixpkgs.url = "github:NixOS/nixpkgs";
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (
+  outputs = inputs: inputs.flakoboros.lib.mkFlakoboros inputs (
     { lib, ... }:
     {
-      systems = import inputs.systems;
-      imports = [
-        inputs.flakoboros.flakeModule
-        {
-          flakoboros = {
-            overrideAttrs.pinocchio = _: {
-              src = lib.cleanSource ./.;  # ce "./." fait tout le travail
-            };
-          };
-        }
-      ];
+      overrideAttrs.pinocchio = {
+        src = lib.cleanSource ./.;  # ce "./." fait tout le travail
+      };
     });
 }
 ```
 
-# Bénéfices
+## Bénéfices
 
 Pour la maintenance de ce logiciel, il devient alors trivial de mettre à jour régulièrement et automatiquement le commit de l’entrée `nixpkgs` de ce flake (dans le fichier généré `flake.lock`), et valider que la version courante de pinocchio n’est pas cassée par une mise à jour de la chaine de compilation (par exemple GCC v15.0.0 ou glibc v2.40), du système de build (par exemple CMake v4.0.0), des dépendances C++ (par exemple Eigen v5.0.0) ou python (par exemple numpy v2.0.0) au fur et à mesure que ceux-ci sont intégrés dans nixpkgs.
 
-S'il y a quoi que ce soit qui pose problème, les auteurs sont avertis rapidement par une pull-request automatique, mais peuvent continuer à utiliser le dernier commit de nixpkgs connu comme fonctionnel qui est dans `flake.lock` tant que la pull request problématique n’est pas résolue et mergée.
+S'il y a quoi que ce soit qui pose problème, les auteurs sont avertis régulièrement par une pull-request automatique, mais peuvent continuer à utiliser le dernier commit de nixpkgs connu comme fonctionnel qui est dans `flake.lock` tant que la pull request problématique n’est pas résolue et mergée.
 
 De la même manière, lors de la prochaine release de pinocchio (par exemple v4.0.0), la mise à jour du paquet pinocchio dans nixkpgs se passera sans encombres puisque cette intégration est testée en continu côté upstream. On pourra donc profiter du bot de maintenance des paquets, qui va ouvrir automatiquement une pull-request qui met à jour le numéro de version et le hash du tarball correspondant, puis rebuild pinocchio et les paquets qui dépendent de pinocchio. Si tout passe correctement (ce dont on peut s’assurer par ailleurs avant de tagger la release), les mainteneurs déclarés du paquet pinocchio dans nixpkgs pourront dire au bot de merger cette mise à jour, d’une manière suffisament simple et solide pour que les peer-review soient instantanées voire non nécessaires, et que l’on puisse économiser l’intervention d’une personne ayant les droits d’écriture dans le dépôt nixpkgs.
 
-## Développement et intégration continue
+### Développement et intégration continue
 
 Cette intégration de la distribution dans le dépôt git source permet également aux développeurs d’avoir un shell de développement comprenant automatiquement toutes les dépendances de pinocchio avec `nix develop` (qui peut s’activer tout seul en entrant dans le dossier grace à `nix-direnv`). Ils peuvent alors modifier n’importe quel fichier source et garder leur workflow habituel, par exemple classiquement lancer `cmake -B build $cmakeFlags && cmake --build build && cmake --build build -t test`, ou alors faire construire leur version modifiée du paquet par nix: `nix build`.
 
@@ -85,7 +76,7 @@ Dans le second cas, c’est exactement la même construction qui est lancée par
 
 Pour gagner du temps et économiser des ressources (ce qui est très intéressant dans le cas de pinocchio puisqu’il est particulièrement gourmant à la construction), le développeur (auquel on aurait au préalable accordé notre confiance) peut directement pousser le paquet nix construit lors de son développement vers une cache binaire partagée par la CI, qui devient alors un cache-hit instantané, et est directement utilisable par les autres développeurs et utilisateurs, comme nous allons le voir dans le paragraphe suivant.
 
-## Utilisation et déploiement continu
+### Utilisation et déploiement continu
 
 À partir du moment où cette technique est mise en place, chaque commit, chaque branche, chaque tag de chaque fork devient automatiquement un déploiement de pinocchio. Par exemple, pour lancer un interpréteur python comprenant le module pinocchio dans le tout dernier commit de la branche principale de développement, il suffit de lancer `nix run github:stack-of-tasks/pinocchio`. Ou pour intégrer la version d’un développeur tier dans un ensemble de logiciels pour tester, on peut ajouter à un flake une entrée `pinocchio.url = "github:OscarMrZ/pinocchio/omm/mjcf_contacts";`. Ou pour lancer un shell avec une version arbitraire de pinocchio disponible: `nix shell github:stack-of-tasts/pinocchio/v3.7.0`.
 
@@ -97,29 +88,18 @@ Avec flakoboros, cette situation se résoud plus rapidement et souplement en ind
  {
    inputs = {
      flakoboros.url = "github:gepetto/flakoboros";
-     flake-parts.follows = "flakoboros/flake-parts";
-     nixpkgs.follows = "flakoboros/nixpkgs";
-     systems.follows = "flakoboros/systems";
 +
 +    hpp-manipulation.url = "github:humanoid-path-planner/hpp-manipulation";
 +    hpp-manipulation.inputs.flakoboros.follows = "flakoboros";
    };
 
-   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (
+   outputs = inputs: inputs.flakoboros.lib.mkFlakoboros inputs (
      { lib, ... }:
      {
-       systems = import inputs.systems;
-       imports = [
-         inputs.flakoboros.flakeModule
-         {
-           flakoboros = {
-+            overlays = [ inputs.hpp-manipulation.overlays.default ];
-             pyOverrideAttrs.hpp-python = _: {
-               src = lib.cleanSource ./.;
-             };
-           };
-         }
-       ];
++      overlays = [ inputs.hpp-manipulation.overlays.default ];
+       pyOverrideAttrs.hpp-python = _: {
+         src = lib.cleanSource ./.;
+       };
      });
  }
 ```
@@ -128,19 +108,19 @@ Après cette modification, la CI de hpp-python utilise directement la dernière 
 
 NB: Dans les ecosystèmes `pip` ou `cargo`, on peut spécifier dans le système de construction qu’une dépendance doit être dans une version décrite par une url git particulière, plutôt que par un tag global de version. L’intégration de Nix et Flakoboros étend simplement cette fonctionnalité à tous les autres langages et ecosystèmes, y compris entre eux (on peut distribuer un paquet rust sur PyPI, mais pas spécifier à pip qu’une des dépendance du paquet rust doit avoir une source git particulière).
 
-# ROS
+## ROS
 
 TODO: distros, use data from source to generate distro, vendoring
 
-# Workspaces
+## Workspaces
 
-## Mono-repo
+### Mono-repo
 
 Il arrive parfois que dans un dépôt git on trouve plusieurs paquets logiciels. Cela peut-être le cas pour des logiciels ayant des composants dans plusieurs langages (par exemple une application web avec un backend en ruby et un frontend en typescript), et ce cas est théoriquement géré par flakoboros mais pas développé. Le cas qui nous intéresse plus est celui qui est dénommé `Workspace` par `cargo` et `uv` ou `méta-paquet` par `ROS`: plusieurs composants logiciels, généralement dans développés dans le même langage, sont synchronisés entre eux par un mono-repo git. Cela facilite leur développement (HPP pourrait bénéficier d’un passage à ce concept, par exemple), mais du point de vue de la distribution les paquets sont traités indépendaments, comme s’ils avaient des sources séparées.
 
 TODO: catkin/colcon, agimus-franka-ros2
 
-## Multi-repo
+### Multi-repo
 
 TODO: reprendre HPP + Makefile
 
@@ -151,7 +131,7 @@ TODO: vcstool, rappel colcon
 TODO: `fd package.xml -x xq .package.name | tr _ - | sort`
 
 
-# Références
+## Références
 
 flakoboros: https://github.com/Gepetto/flakoboros
 dolstra-2006: https://edolstra.github.io/pubs/phd-thesis.pdf

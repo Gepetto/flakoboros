@@ -43,8 +43,9 @@
           flakeModule
         ];
         perSystem =
-          { system, ... }:
+          { pkgs, system, ... }:
           {
+            packages = { inherit (pkgs) nixdoc; };
             treefmt = {
               # workaround  https://github.com/numtide/treefmt-nix/issues/352
               pkgs = inputs.nixpkgs.legacyPackages.${system};
