@@ -74,7 +74,7 @@
             };
 
             search = inputs'.search.packages.mkSearch {
-              baseHref = "/search/";
+              baseHref = "/flakoboros/search/";
               modules = [ inputs.flakoboros.flakeModule ];
               title = "flakoboros";
               urlPrefix = "https://github.com/gepetto/flakoboros/blob/main/";
