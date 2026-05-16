@@ -5,11 +5,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1777678872,
-        "narHash": "sha256-EPIFsulyon7Z1vLQq5Fk64GR8L7cQsT+IPhcsukVbgk=",
+        "lastModified": 1777988971,
+        "narHash": "sha256-qIoWPDs+0/8JecyYgE3gpKQxW/4bLW/gp45vow9ioCQ=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "5250617bffd85403b14dbf43c3870e7f255d2c16",
+        "rev": "0678d8986be1661af6bb555f3489f2fdfc31f6ff",
         "type": "github"
       },
       "original": {
@@ -110,14 +110,15 @@
     "nix-ros-overlay": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "rosdistro": "rosdistro"
       },
       "locked": {
-        "lastModified": 1777663706,
-        "narHash": "sha256-/FNf2XKConDHH58kqf2PaX+LZrZHXEftIubNUy5Amw8=",
+        "lastModified": 1778049803,
+        "narHash": "sha256-baiwHYf+vz1tVI0tqkHu20xrt0kZ8CvNyCIfb2uKNGg=",
         "owner": "lopsided98",
         "repo": "nix-ros-overlay",
-        "rev": "44324139f18e1edfeb9e2030336e9ed374038e71",
+        "rev": "e19ba90a181f1ac94be58c39a173a6cea00690fb",
         "type": "github"
       },
       "original": {
@@ -175,6 +176,22 @@
           "flakoboros",
           "systems"
         ]
+      }
+    },
+    "rosdistro": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777588030,
+        "narHash": "sha256-2rUTgWkEhSKOUxF8jNqVtt5OOUbONeRWpeVBK9O/XZU=",
+        "owner": "ros",
+        "repo": "rosdistro",
+        "rev": "cbeafda93a5adcc1168fec90474a08761b98b0ee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ros",
+        "repo": "rosdistro",
+        "type": "github"
       }
     },
     "search": {
