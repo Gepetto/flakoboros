@@ -2,6 +2,8 @@
   config,
   lib,
 
+  mkQtHelpers,
+  ros2qt,
   rosWrapperArgs,
   rosShellHook,
   getRosBasePackages,
@@ -74,6 +76,7 @@ rec {
     pkgs: distro: packages:
     let
       shell = buildFlakoborosShell pkgs distro packages;
+      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
     pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
@@ -87,17 +90,9 @@ rec {
         ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
-        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
-          pkgs.python3Packages.coal # TODO
-          pkgs.qt5.wrapQtAppsHook
-          pkgs.qt5.qtgraphicaleffects
-        ]
-        ++ lib.optionals (distro == "rolling") [
-          pkgs.qt6.qtbase
-          pkgs.qt6.wrapQtAppsHook
-        ]
+        ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro;
+      postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
   /**
@@ -107,6 +102,7 @@ rec {
     pkgs: distro: packages:
     let
       shell = buildFlakoborosShell pkgs distro packages;
+      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
     pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
@@ -121,17 +117,9 @@ rec {
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ getRosBasePackages pkgs distro
-        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
-          pkgs.python3Packages.coal # TODO
-          pkgs.qt5.wrapQtAppsHook
-          pkgs.qt5.qtgraphicaleffects
-        ]
-        ++ lib.optionals (distro == "rolling") [
-          pkgs.qt6.wrapQtAppsHook
-          pkgs.qt6.qtbase
-        ]
+        ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro;
+      postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
   /**
@@ -141,6 +129,7 @@ rec {
     pkgs: distro: packages:
     let
       shell = buildFlakoborosDevShell pkgs distro packages;
+      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
     pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
@@ -155,17 +144,9 @@ rec {
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ getRosBasePackages pkgs distro
-        ++ lib.optionals (distro == "humble" || distro == "jazzy" || distro == "kilted") [
-          pkgs.python3Packages.coal # TODO
-          pkgs.qt5.wrapQtAppsHook
-          pkgs.qt5.qtgraphicaleffects
-        ]
-        ++ lib.optionals (distro == "rolling") [
-          pkgs.qt6.wrapQtAppsHook
-          pkgs.qt6.qtbase
-        ]
+        ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro;
+      postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
   /**
@@ -190,7 +171,7 @@ rec {
         ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
-      shellHook = rosShellHook pkgs distro env;
+      shellHook = rosShellHook pkgs distro env cfg;
     };
 
 }
