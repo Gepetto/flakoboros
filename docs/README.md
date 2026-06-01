@@ -13,7 +13,7 @@ When one package is defined in a flake, we can by default:
 - `nix develop`: open a shell without the built package, but with everything required to build it
 - `nix run`: execute the main program from the package
 
-Flakoboros allows to provide the same experience with multiple packages in a flake:
+Flakoboros provide the same experience with multiple packages in a flake:
 
 - `nix build`: build all packages (and run their tests)
 - `nix shell`: open a shell with all packages ready to be used
