@@ -36,32 +36,6 @@ rec {
       qt = if (qtVersion == "5") then pkgs.qt5 else pkgs.qt6;
     in
     {
-      QML2_IMPORT_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix (
-        lib.optionals (qtVersion == "5") [
-          qt.qtbase
-          qt.qtdeclarative
-          qt.qtquickcontrols
-          qt.qtquickcontrols2
-          qt.qtgraphicaleffects
-          qt.qtwayland
-          qt.qtwebsockets
-        ]
-      );
-      QT_PLUGIN_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix (
-        lib.optionals (qtVersion == "5") [
-          qt.qtbase
-          qt.qtdeclarative
-          qt.qtwayland
-        ]
-      );
-      QT_QPA_PLATFORM_PLUGIN_PATH =
-        lib.makeSearchPathOutput "bin" "${qt.qtbase.qtPluginPrefix}/platforms"
-          (
-            lib.optionals (qtVersion == "5") [
-              qt.qtbase
-              qt.qtwayland
-            ]
-          );
       env = [
         qt.qtbase
         qt.wrapQtAppsHook
@@ -69,6 +43,28 @@ rec {
       ++ lib.optionals (qtVersion == "5") [
         qt.qtgraphicaleffects
       ];
+    }
+    // lib.optionalAttrs (qtVersion == "5") {
+      QML2_IMPORT_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix [
+        qt.qtbase
+        qt.qtdeclarative
+        qt.qtquickcontrols
+        qt.qtquickcontrols2
+        qt.qtgraphicaleffects
+        qt.qtwayland
+        qt.qtwebsockets
+      ];
+      QT_PLUGIN_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix [
+        qt.qtbase
+        qt.qtdeclarative
+        qt.qtwayland
+      ];
+      QT_QPA_PLATFORM_PLUGIN_PATH =
+        lib.makeSearchPathOutput "bin" "${qt.qtbase.qtPluginPrefix}/platforms"
+          [
+            qt.qtbase
+            qt.qtwayland
+          ];
     };
 
   /**
@@ -81,7 +77,8 @@ rec {
       ...
     }:
     let
-      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
+      qtVersion = ros2qt distro;
+      qtHelpers = mkQtHelpers pkgs qtVersion;
     in
     ''
       rosWrapperArgs+=(
@@ -99,7 +96,7 @@ rec {
       --prefix IGN_CONFIG_PATH : $out/share/ignition
       --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
     ''
-    + lib.optionalString enableQt ''
+    + lib.optionalString (enableQt && qtVersion == "5") ''
       --set QML2_IMPORT_PATH ${qtHelpers.QML2_IMPORT_PATH}
       --set QT_PLUGIN_PATH ${qtHelpers.QT_PLUGIN_PATH}
       --set QT_QPA_PLATFORM_PLUGIN_PATH ${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
@@ -125,7 +122,8 @@ rec {
       ...
     }:
     let
-      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
+      qtVersion = ros2qt distro;
+      qtHelpers = mkQtHelpers pkgs qtVersion;
     in
     ''
       unset QT_PLUGIN_PATH
@@ -151,7 +149,7 @@ rec {
       export IGN_CONFIG_PATH
       export IGN_GAZEBO_RESOURCE_PATH
     ''
-    + lib.optionalString (pkgs != null && enableQt) ''
+    + lib.optionalString (pkgs != null && enableQt && qtVersion == "5") ''
       QML2_IMPORT_PATH=${qtHelpers.QML2_IMPORT_PATH}
       QT_PLUGIN_PATH=${qtHelpers.QT_PLUGIN_PATH}
       QT_QPA_PLATFORM_PLUGIN_PATH=${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
