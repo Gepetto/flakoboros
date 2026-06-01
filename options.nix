@@ -232,4 +232,23 @@
     default = false;
     example = true;
   };
+
+  enableColcon = lib.mkOption {
+    type = lib.types.bool;
+    description = "`source install/local_setup.bash` when available";
+    default = true;
+    example = false;
+  };
+  enableVenv = lib.mkOption {
+    type = lib.types.bool;
+    description = "`source .venv/bin/activate` when available";
+    default = true;
+    example = false;
+  };
+  enableQt = lib.mkOption {
+    type = lib.types.bool;
+    description = "Add Qt libs / hooks / env-vars";
+    default = true;
+    example = false;
+  };
 }

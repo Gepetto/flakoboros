@@ -14,18 +14,78 @@ rec {
       "harmonic"
     else if distro == "kilted" then
       "ionic"
+    else if distro == "lyrical" then
+      "jetty"
     else if distro == "rolling" then
       "jetty"
     else
       throw "wrong ros distro";
 
   /**
+    mapping of recommended Qt per ROS distro
+  */
+  ros2qt =
+    distro: if (distro == "humble" || distro == "jazzy" || distro == "kilted") then "5" else "6";
+
+  /**
+    Qt helpers
+  */
+  mkQtHelpers =
+    pkgs: qtVersion:
+    let
+      qt = if (qtVersion == "5") then pkgs.qt5 else pkgs.qt6;
+    in
+    {
+      QML2_IMPORT_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix (
+        lib.optionals (qtVersion == "5") [
+          qt.qtbase
+          qt.qtdeclarative
+          qt.qtquickcontrols
+          qt.qtquickcontrols2
+          qt.qtgraphicaleffects
+          qt.qtwayland
+          qt.qtwebsockets
+        ]
+      );
+      QT_PLUGIN_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix (
+        lib.optionals (qtVersion == "5") [
+          qt.qtbase
+          qt.qtdeclarative
+          qt.qtwayland
+        ]
+      );
+      QT_QPA_PLATFORM_PLUGIN_PATH =
+        lib.makeSearchPathOutput "bin" "${qt.qtbase.qtPluginPrefix}/platforms"
+          (
+            lib.optionals (qtVersion == "5") [
+              qt.qtbase
+              qt.qtwayland
+            ]
+          );
+      env = [
+        qt.qtbase
+        qt.wrapQtAppsHook
+      ]
+      ++ lib.optionals (qtVersion == "5") [
+        qt.qtgraphicaleffects
+      ];
+    };
+
+  /**
     set many env vars in a makeWrapperArgs format for postBuild
   */
   rosWrapperArgs =
     pkgs: distro:
+    {
+      enableQt ? true,
+      ...
+    }:
+    let
+      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
+    in
     ''
       rosWrapperArgs+=(
+      --unset QT_PLUGIN_PATH
       --unset QTWEBKIT_PLUGIN_PATH
       --unset QT_QPA_PLATFORMTHEME
       --unset QT_STYLE_OVERRIDE
@@ -39,24 +99,10 @@ rec {
       --prefix IGN_CONFIG_PATH : $out/share/ignition
       --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
     ''
-    + lib.optionalString (distro == "humble" || distro == "jazzy" || distro == "kilted") ''
-      --set QML2_IMPORT_PATH ${
-        lib.makeSearchPathOutput "bin" pkgs.qt5.qtbase.qtQmlPrefix [
-          pkgs.qt5.qtbase
-          pkgs.qt5.qtdeclarative
-          pkgs.qt5.qtquickcontrols
-          pkgs.qt5.qtquickcontrols2
-          pkgs.qt5.qtgraphicaleffects
-          pkgs.qt5.qtwayland
-          pkgs.qt5.qtwebsockets
-        ]
-      }
-      --set QT_QPA_PLATFORM_PLUGIN_PATH ${
-        lib.makeSearchPathOutput "bin" "${pkgs.qt5.qtbase.qtPluginPrefix}/platforms" [
-          pkgs.qt5.qtbase
-          pkgs.qt5.qtwayland
-        ]
-      }
+    + lib.optionalString enableQt ''
+      --set QML2_IMPORT_PATH ${qtHelpers.QML2_IMPORT_PATH}
+      --set QT_PLUGIN_PATH ${qtHelpers.QT_PLUGIN_PATH}
+      --set QT_QPA_PLATFORM_PLUGIN_PATH ${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
     ''
     + lib.optionalString (distro != "humble") ''
       --set-default GZ_IP 127.0.0.1
@@ -72,7 +118,17 @@ rec {
   */
   rosShellHook =
     pkgs: distro: env:
+    {
+      enableQt ? true,
+      enableColcon ? true,
+      enableVenv ? true,
+      ...
+    }:
+    let
+      qtHelpers = mkQtHelpers pkgs (ros2qt distro);
+    in
     ''
+      unset QT_PLUGIN_PATH
       unset QTWEBKIT_PLUGIN_PATH
       unset QT_QPA_PLATFORMTHEME
       unset QT_STYLE_OVERRIDE
@@ -95,37 +151,14 @@ rec {
       export IGN_CONFIG_PATH
       export IGN_GAZEBO_RESOURCE_PATH
     ''
-    +
-      lib.optionalString (pkgs != null && (distro == "humble" || distro == "jazzy" || distro == "kilted"))
-        ''
-          QML2_IMPORT_PATH=${
-            lib.makeSearchPathOutput "bin" pkgs.qt5.qtbase.qtQmlPrefix [
-              pkgs.qt5.qtbase
-              pkgs.qt5.qtdeclarative
-              pkgs.qt5.qtquickcontrols
-              pkgs.qt5.qtquickcontrols2
-              pkgs.qt5.qtgraphicaleffects
-              pkgs.qt5.qtwayland
-              pkgs.qt5.qtwebsockets
-            ]
-          }
-          QT_PLUGIN_PATH=${
-            lib.makeSearchPathOutput "bin" pkgs.qt5.qtbase.qtPluginPrefix [
-              pkgs.qt5.qtbase
-              pkgs.qt5.qtdeclarative
-              pkgs.qt5.qtwayland
-            ]
-          }
-          QT_QPA_PLATFORM_PLUGIN_PATH=${
-            lib.makeSearchPathOutput "bin" "${pkgs.qt5.qtbase.qtPluginPrefix}/platforms" [
-              pkgs.qt5.qtbase
-              pkgs.qt5.qtwayland
-            ]
-          }
-          export QML2_IMPORT_PATH
-          export QT_PLUGIN_PATH
-          export QT_QPA_PLATFORM_PLUGIN_PATH
-        ''
+    + lib.optionalString (pkgs != null && enableQt) ''
+      QML2_IMPORT_PATH=${qtHelpers.QML2_IMPORT_PATH}
+      QT_PLUGIN_PATH=${qtHelpers.QT_PLUGIN_PATH}
+      QT_QPA_PLATFORM_PLUGIN_PATH=${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
+      export QML2_IMPORT_PATH
+      export QT_PLUGIN_PATH
+      export QT_QPA_PLATFORM_PLUGIN_PATH
+    ''
     + lib.optionalString (distro != "humble") ''
       : ''${GZ_IP:=127.0.0.1}
       : ''${GAZEBO_VERSION:=${ros2gz distro}}
@@ -138,8 +171,11 @@ rec {
       export GZ_CONFIG_PATH
       export GZ_SIM_RESOURCE_PATH
     ''
-    + ''
+    + lib.optionalString enableColcon ''
       test -f install/local_setup.bash && source install/local_setup.bash
+    ''
+    + lib.optionalString enableVenv ''
+      test -f .venv/bin/activate && source .venv/bin/activate
     '';
 
   /**
@@ -164,6 +200,8 @@ rec {
       inherit
         config
         lib
+        mkQtHelpers
+        ros2qt
         rosWrapperArgs
         rosShellHook
         getRosBasePackages
