@@ -89,25 +89,25 @@ rec {
       --unset QTWEBKIT_PLUGIN_PATH
       --unset QT_QPA_PLATFORMTHEME
       --unset QT_STYLE_OVERRIDE
-      --prefix AMENT_PREFIX_PATH : $out
-      --prefix LD_LIBRARY_PATH : $out/lib
-      --prefix PYTHONPATH : $out/lib/python3.13/site-packages:$out/lib/python3.14/site-packages
+      --prefix AMENT_PREFIX_PATH : "$out"
+      --prefix LD_LIBRARY_PATH : "$out/lib"
+      --prefix PYTHONPATH : "$out/lib/python3.13/site-packages:$out/lib/python3.14/site-packages"
     ''
     + lib.optionalString (distro == "humble") ''
-      --set-default IGN_IP 127.0.0.1
-      --set-default IGNITION_VERSION ${ros2gz distro}
-      --prefix IGN_CONFIG_PATH : $out/share/ignition
-      --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
+      --set-default IGN_IP "127.0.0.1"
+      --set-default IGNITION_VERSION "${ros2gz distro}"
+      --prefix IGN_CONFIG_PATH : "$out/share/ignition"
+      --prefix IGN_GAZEBO_RESOURCE_PATH : "$out/share"
     ''
     + lib.optionalString enableQt ''
-      --set QML2_IMPORT_PATH ${qtHelpers.QML2_IMPORT_PATH}
-      --set QT_PLUGIN_PATH ${qtHelpers.QT_PLUGIN_PATH}
-      --set QT_QPA_PLATFORM_PLUGIN_PATH ${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
+      --set QML2_IMPORT_PATH "${qtHelpers.QML2_IMPORT_PATH}"
+      --set QT_PLUGIN_PATH "${qtHelpers.QT_PLUGIN_PATH}"
+      --set QT_QPA_PLATFORM_PLUGIN_PATH "${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}"
     ''
     + lib.optionalString (distro != "humble") ''
-      --set-default GZ_IP 127.0.0.1
-      --set-default GAZEBO_VERSION ${ros2gz distro}
-      --prefix GZ_SIM_RESOURCE_PATH : $out/share
+      --set-default GZ_IP "127.0.0.1"
+      --set-default GAZEBO_VERSION "${ros2gz distro}"
+      --prefix GZ_SIM_RESOURCE_PATH : "$out/share"
     ''
     + ''
       )
@@ -134,40 +134,40 @@ rec {
       unset QT_STYLE_OVERRIDE
     ''
     + lib.optionalString (env != null) ''
-      AMENT_PREFIX_PATH=${env}:''${AMENT_PREFIX_PATH:+:$AMENT_PREFIX_PATH}
-      LD_LIBRARY_PATH=${env}/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+      AMENT_PREFIX_PATH="${env}:''${AMENT_PREFIX_PATH:+:$AMENT_PREFIX_PATH}"
+      LD_LIBRARY_PATH="${env}/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export AMENT_PREFIX_PATH
       export LD_LIBRARY_PATH
     ''
     + lib.optionalString (distro == "humble") ''
-      : ''${IGN_IP:=127.0.0.1}
-      : ''${IGNITION_VERSION:=${ros2gz distro}}
+      : ''${IGN_IP:="127.0.0.1"}
+      : ''${IGNITION_VERSION:="${ros2gz distro}"}
       export IGN_IP
       export IGNITION_VERSION
     ''
     + lib.optionalString (env != null && distro == "humble") ''
-      IGN_CONFIG_PATH=${env}/share/ignition:''${IGN_CONFIG_PATH:+:$IGN_CONFIG_PATH}
-      IGN_GAZEBO_RESOURCE_PATH=${env}/share:''${IGN_GAZEBO_RESOURCE_PATH:+:$IGN_GAZEBO_RESOURCE_PATH}
+      IGN_CONFIG_PATH="${env}/share/ignition:''${IGN_CONFIG_PATH:+:$IGN_CONFIG_PATH}"
+      IGN_GAZEBO_RESOURCE_PATH="${env}/share:''${IGN_GAZEBO_RESOURCE_PATH:+:$IGN_GAZEBO_RESOURCE_PATH}"
       export IGN_CONFIG_PATH
       export IGN_GAZEBO_RESOURCE_PATH
     ''
     + lib.optionalString (pkgs != null && enableQt) ''
-      QML2_IMPORT_PATH=${qtHelpers.QML2_IMPORT_PATH}
-      QT_PLUGIN_PATH=${qtHelpers.QT_PLUGIN_PATH}
-      QT_QPA_PLATFORM_PLUGIN_PATH=${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
+      QML2_IMPORT_PATH="${qtHelpers.QML2_IMPORT_PATH}"
+      QT_PLUGIN_PATH="${qtHelpers.QT_PLUGIN_PATH}"
+      QT_QPA_PLATFORM_PLUGIN_PATH="${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}"
       export QML2_IMPORT_PATH
       export QT_PLUGIN_PATH
       export QT_QPA_PLATFORM_PLUGIN_PATH
     ''
     + lib.optionalString (distro != "humble") ''
-      : ''${GZ_IP:=127.0.0.1}
-      : ''${GAZEBO_VERSION:=${ros2gz distro}}
+      : ''${GZ_IP:="127.0.0.1"}
+      : ''${GAZEBO_VERSION:="${ros2gz distro}"}
       export GZ_IP
       export GAZEBO_VERSION
     ''
     + lib.optionalString (env != null && distro != "humble") ''
-      GZ_CONFIG_PATH=${env}/share/gz:''${GZ_CONFIG_PATH:+:$GZ_CONFIG_PATH}
-      GZ_SIM_RESOURCE_PATH=${env}/share:''${GZ_SIM_RESOURCE_PATH:+:$GZ_SIM_RESOURCE_PATH}
+      GZ_CONFIG_PATH="${env}/share/gz:''${GZ_CONFIG_PATH:+:$GZ_CONFIG_PATH}"
+      GZ_SIM_RESOURCE_PATH="${env}/share:''${GZ_SIM_RESOURCE_PATH:+:$GZ_SIM_RESOURCE_PATH}"
       export GZ_CONFIG_PATH
       export GZ_SIM_RESOURCE_PATH
     ''
