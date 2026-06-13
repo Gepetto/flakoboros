@@ -43,11 +43,11 @@
         "rosdistro": "rosdistro"
       },
       "locked": {
-        "lastModified": 1780736467,
-        "narHash": "sha256-Z+2rqsfRTsbt84tcmLBPawHekPU2yaEhsr/inJ2Vb5c=",
+        "lastModified": 1781297240,
+        "narHash": "sha256-OpYxlrSlcqJyknjgIuvv8dtEEbHuuZoe+fJzclrBgmg=",
         "owner": "lopsided98",
         "repo": "nix-ros-overlay",
-        "rev": "58ed8bba49e54700448cddd05c26fd3c743909e3",
+        "rev": "9e9b9a2953a195985e1e6c99e353fbb767380a2d",
         "type": "github"
       },
       "original": {
