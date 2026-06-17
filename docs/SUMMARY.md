@@ -15,6 +15,10 @@
 - [Plain lib](./plain-lib.md)
 - [Generated lib](./generated-lib.md)
 
+# HOWTOs
+
+- [setup nix](./howto/setup-nix.md)
+
 # WIP
 
 - [Rationale](./rationale.md)
