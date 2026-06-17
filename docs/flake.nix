@@ -10,7 +10,7 @@
 
     search = {
       url = "github:NuschtOS/search";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
