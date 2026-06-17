@@ -93,17 +93,38 @@
         ]
       },
       "locked": {
-        "lastModified": 1754860581,
-        "narHash": "sha256-EM0IE63OHxXCOpDHXaTyHIOk2cNvMCGPqLt/IdtVxgk=",
+        "lastModified": 1780853531,
+        "narHash": "sha256-vLSO1r6UJ8+8r2o05ZILtvIQ5vPobGWTKvWXc4hYq+o=",
         "owner": "NuschtOS",
         "repo": "ixx",
-        "rev": "babfe85a876162c4acc9ab6fb4483df88fa1f281",
+        "rev": "d7a538df37375683fda931d244ca47aed0296940",
         "type": "github"
       },
       "original": {
         "owner": "NuschtOS",
-        "ref": "v0.1.1",
+        "ref": "v0.2.1",
         "repo": "ixx",
+        "type": "github"
+      }
+    },
+    "nix-index-database": {
+      "inputs": {
+        "nixpkgs": [
+          "search",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781422160,
+        "narHash": "sha256-W7S8O86bVrw2gaomEwkHStOzmPpnFIHQ6lS4Q2HffJ0=",
+        "owner": "Mic92",
+        "repo": "nix-index-database",
+        "rev": "854d04e2368fb2e9c328a36b3c0a04cd713bfae1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nix-index-database",
         "type": "github"
       }
     },
@@ -114,11 +135,11 @@
         "rosdistro": "rosdistro"
       },
       "locked": {
-        "lastModified": 1780736467,
-        "narHash": "sha256-Z+2rqsfRTsbt84tcmLBPawHekPU2yaEhsr/inJ2Vb5c=",
+        "lastModified": 1781297240,
+        "narHash": "sha256-OpYxlrSlcqJyknjgIuvv8dtEEbHuuZoe+fJzclrBgmg=",
         "owner": "lopsided98",
         "repo": "nix-ros-overlay",
-        "rev": "58ed8bba49e54700448cddd05c26fd3c743909e3",
+        "rev": "9e9b9a2953a195985e1e6c99e353fbb767380a2d",
         "type": "github"
       },
       "original": {
@@ -156,6 +177,22 @@
       "original": {
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1781577229,
+        "narHash": "sha256-lrp67w8AulE9Ks53n27I45ADSzbOCn4H+CNW1Ck8B+8=",
+        "owner": "NuschtOS",
+        "repo": "nuschtpkgs",
+        "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NuschtOS",
+        "ref": "nixos-unstable",
+        "repo": "nuschtpkgs",
         "type": "github"
       }
     },
@@ -198,16 +235,15 @@
       "inputs": {
         "flake-utils": "flake-utils_2",
         "ixx": "ixx",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nix-index-database": "nix-index-database",
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1781218013,
-        "narHash": "sha256-0cZ3O0ok+2kXA1VLlzkqhImCqJVDvI5y+nvNHl3gCMI=",
+        "lastModified": 1781568066,
+        "narHash": "sha256-L9roRFvAq22QIdHfZns6Keo2ZfUfmEMvAVQRvXZ0V2s=",
         "owner": "NuschtOS",
         "repo": "search",
-        "rev": "1c849ee959a044a92d11db013e0020f28e3b33cb",
+        "rev": "b9092e8a7171f7eb5cbf4f6c34c98ed4bd05a802",
         "type": "github"
       },
       "original": {
