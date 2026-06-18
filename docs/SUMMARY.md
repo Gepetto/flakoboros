@@ -18,6 +18,7 @@
 # HOWTOs
 
 - [setup nix](./howto/setup-nix.md)
+- [build a ROS workspace](./howto/ros-workspace.md)
 
 <!-- # WIP -->
 <!---->
