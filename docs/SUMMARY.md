@@ -18,10 +18,11 @@
 # HOWTOs
 
 - [setup nix](./howto/setup-nix.md)
+- [build a ROS workspace](./howto/ros-workspace.md)
 
-# WIP
-
-- [Rationale](./rationale.md)
+<!-- # WIP -->
+<!---->
+<!-- - [Rationale](./rationale.md) -->
 
 ---
 
