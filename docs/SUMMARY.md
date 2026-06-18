@@ -19,9 +19,9 @@
 
 - [setup nix](./howto/setup-nix.md)
 
-# WIP
-
-- [Rationale](./rationale.md)
+<!-- # WIP -->
+<!---->
+<!-- - [Rationale](./rationale.md) -->
 
 ---
 
