@@ -9,7 +9,7 @@ We will split the whole dependency tree in two distinct sets: the source reposit
 > [!NOTE]
 > The limitiation here is that we should not have any package in the second set that depend on any package from the first :)
 
-One usual way of defining multiple repositories in the ROS community is with this eg. `agimus.repos` yaml file:
+One usual way of defining multiple repositories in the ROS community is with this eg. `agimus.repos` yaml file:
 
 ```yaml
 repositories:
@@ -131,5 +131,23 @@ source install/setup.bash
 ## Profit
 
 ```bash
+ros2 launch agimus_demo_03_mpc_dummy_traj bringup.launch.py use_gazebo:=true use_rviz:=true
+```
+
+## Switch ros distro ?
+
+Time to change ROS distro, like upgrade from humble to jazzy ? Sure :)
+
+Remember that `rosShellDistro = "humble";` ? It means that by default, `nix develop .` / `use flake .`
+will be equivalent to `nix develop .#ros-humble` / `use flake .#ros-humble`.
+
+Obviously, you can therefore use `.#ros-jazzy` in this example:
+
+```
+rm -rf build install
+echo 'use flake .#ros-jazzy' > .envrc # or 'nix develop .#ros-jazzy'
+direnv allow
+colcon build
+source install/setup.bash
 ros2 launch agimus_demo_03_mpc_dummy_traj bringup.launch.py use_gazebo:=true use_rviz:=true
 ```
