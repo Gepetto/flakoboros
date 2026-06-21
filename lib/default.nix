@@ -92,6 +92,7 @@ rec {
     ''
     + lib.optionalString (distro == "humble") ''
       --set-default IGN_IP 127.0.0.1
+      --set-default IGN_VERSION ${ros2gz distro}
       --set-default IGNITION_VERSION ${ros2gz distro}
       --prefix IGN_CONFIG_PATH : $out/share/ignition
       --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
@@ -140,8 +141,10 @@ rec {
     ''
     + lib.optionalString (distro == "humble") ''
       : ''${IGN_IP:=127.0.0.1}
+      : ''${IGN_VERSION:=${ros2gz distro}}
       : ''${IGNITION_VERSION:=${ros2gz distro}}
       export IGN_IP
+      export IGN_VERSION
       export IGNITION_VERSION
     ''
     + lib.optionalString (env != null && distro == "humble") ''
