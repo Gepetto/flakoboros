@@ -104,6 +104,7 @@ rec {
     + lib.optionalString (distro != "humble") ''
       --set-default GZ_IP 127.0.0.1
       --set-default GAZEBO_VERSION ${ros2gz distro}
+      --set-default GZ_VERSION ${ros2gz distro}
       --prefix GZ_SIM_RESOURCE_PATH : $out/share
     ''
     + ''
@@ -160,8 +161,10 @@ rec {
     + lib.optionalString (distro != "humble") ''
       : ''${GZ_IP:=127.0.0.1}
       : ''${GAZEBO_VERSION:=${ros2gz distro}}
+      : ''${GZ_VERSION:=${ros2gz distro}}
       export GZ_IP
       export GAZEBO_VERSION
+      export GZ_VERSION
     ''
     + lib.optionalString (env != null && distro != "humble") ''
       GZ_CONFIG_PATH=${env}/share/gz:''${GZ_CONFIG_PATH:+:$GZ_CONFIG_PATH}
