@@ -9,6 +9,7 @@ For this let's at least respect some user agent etiquette.
 import argparse
 import json
 import logging
+import os
 import pathlib
 import subprocess
 import time
@@ -97,6 +98,7 @@ def main():
         "extraDevPyPackages": set(),
         "extraDevRosPackages": set(),
     }
+    os.environ["ROS_DISTRO"] = args.ros
     for root, _dirs, files in src.walk():
         if PACKAGE in files:
             pkg = parse_package(root)
@@ -140,6 +142,7 @@ def main():
 
     wsconf = {k: list(v) for k, v in wsconf.items() if v}
     wsconf["rosShellDistro"] = args.ros
+    wsconf["rosDistros"] = [args.ros]
     pathlib.Path("wsconf.json").write_text(json.dumps(wsconf))
 
 
