@@ -1,4 +1,6 @@
 {
+  description = "Circular Packaging framework with nix Flakes, including ROS support";
+
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     nix-ros-overlay.url = "github:lopsided98/nix-ros-overlay/develop";

@@ -1,0 +1,26 @@
+[project]
+name = "flakoboros"
+version = "0.1.0"
+description = "Circular Packaging framework with nix Flakes, including ROS support"
+readme = "README.md"
+authors = [
+    { name = "Guilhem Saurel", email = "guilhem.saurel@laas.fr" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "catkin-pkg>=1.1.0",
+    "httpx[http2]>=0.28.1",
+    "xdg-base-dirs>=6.0.2",
+]
+
+[project.scripts]
+flakoboros = "flakoboros:main"
+
+[build-system]
+requires = ["uv_build>=0.11.19,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipython>=9.14.1",
+]
