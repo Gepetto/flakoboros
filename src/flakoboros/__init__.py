@@ -121,9 +121,9 @@ def main():
                     + pkg.test_depends
                 ):
                     name = dep.name.replace("_", "-")
-                    if dep in cache["ros"]:
+                    if name in cache["ros"]:
                         wsconf["extraRosPackages"].add(name)
-                    elif dep in cache["rosdep"]:
+                    elif name in cache["rosdep"]:
                         for rosdep in cache["rosdep"][name]:
                             if rosdep.startswith("python3Packages."):
                                 wsconf["extraPyPackages"].add(
@@ -131,9 +131,9 @@ def main():
                                 )
                             else:
                                 wsconf["extraPackages"].add(rosdep)
-                    elif dep in cache["python"]:
+                    elif name in cache["python"]:
                         wsconf["extraPyPackages"].add(name)
-                    elif dep in cache["pkgs"]:
+                    elif name in cache["pkgs"]:
                         wsconf["extraPackages"].add(name)
                     else:
                         LOGGER.error(
