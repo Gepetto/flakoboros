@@ -45,26 +45,27 @@ rec {
       ];
     }
     // lib.optionalAttrs (qtVersion == "5") {
-      QML2_IMPORT_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix [
-        qt.qtbase
-        qt.qtdeclarative
-        qt.qtquickcontrols
-        qt.qtquickcontrols2
-        qt.qtgraphicaleffects
-        qt.qtwayland
-        qt.qtwebsockets
-      ];
-      QT_PLUGIN_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix [
-        qt.qtbase
-        qt.qtdeclarative
-        qt.qtwayland
-      ];
+      QML2_IMPORT_PATH =
+        lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix [
+          qt.qtbase
+          qt.qtdeclarative
+          qt.qtquickcontrols
+          qt.qtquickcontrols2
+          qt.qtgraphicaleffects
+          qt.qtwebsockets
+        ]
+        ++ lib.optional pkgs.stdenv.hostPlatform.isLinux qt.qtwayland;
+      QT_PLUGIN_PATH =
+        lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix [
+          qt.qtbase
+          qt.qtdeclarative
+        ]
+        ++ lib.optional pkgs.stdenv.hostPlatform.isLinux qt.qtwayland;
       QT_QPA_PLATFORM_PLUGIN_PATH =
-        lib.makeSearchPathOutput "bin" "${qt.qtbase.qtPluginPrefix}/platforms"
-          [
-            qt.qtbase
-            qt.qtwayland
-          ];
+        lib.makeSearchPathOutput "bin" "${qt.qtbase.qtPluginPrefix}/platforms" [
+          qt.qtbase
+        ]
+        ++ lib.optional pkgs.stdenv.hostPlatform.isLinux qt.qtwayland;
     };
 
   /**
