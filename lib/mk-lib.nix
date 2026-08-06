@@ -23,7 +23,6 @@ rec {
       name = "flakoboros default shell";
       preferLocalBuild = false;
       __structuredAttrs = true;
-      strictDeps = true;
       packages =
         lib.attrValues (
           lib.filterAttrs (
@@ -48,7 +47,6 @@ rec {
       name = "flakoboros default devShell";
       preferLocalBuild = false;
       __structuredAttrs = true;
-      strictDeps = true;
       inputsFrom =
         lib.attrValues (
           lib.filterAttrs (
@@ -164,7 +162,6 @@ rec {
       name = "flakoboros default ROS devShell";
       preferLocalBuild = false;
       __structuredAttrs = true;
-      strictDeps = true;
       inputsFrom = [ shell ];
       packages =
         getRosBasePackages pkgs distro
