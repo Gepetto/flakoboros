@@ -92,6 +92,7 @@ rec {
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
@@ -119,6 +120,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
@@ -146,6 +148,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
     };
 
