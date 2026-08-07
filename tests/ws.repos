@@ -1,0 +1,9 @@
+repositories:
+  src/lfc-msgs:
+    type: git
+    url: https://github.com/loco-3d/linear-feedback-controller-msgs
+    version: main
+  src/lfc:
+    type: git
+    url: https://github.com/loco-3d/linear-feedback-controller
+    version: main
