@@ -43,11 +43,11 @@
         "rosdistro": "rosdistro"
       },
       "locked": {
-        "lastModified": 1786038266,
-        "narHash": "sha256-/ruOByix5YEHHkjBkU/4Jud9Nw/qOh3JRwXas3O3Nu0=",
-        "owner": "nim65s",
+        "lastModified": 1786113238,
+        "narHash": "sha256-shXJCaYOSVMr5VQf9jjd73AK/Xj1r+S1+IkQnZR1kd4=",
+        "owner": "wentasah",
         "repo": "nix-ros-overlay",
-        "rev": "fe4d4670d2e3ff640ccea88a93392755aab7f0c6",
+        "rev": "056912c070d319934398c0804f3bb0e8e381392a",
         "type": "github"
       },
       "original": {

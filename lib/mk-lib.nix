@@ -78,7 +78,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
       qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
-    pkgs.rosPackages.${distro}.buildEnv {
+    (pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
@@ -92,9 +92,11 @@ rec {
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
-    };
+    }).overrideAttrs
+      {
+        preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
+      };
 
   /**
     `buildFlakoborosEnv` plus ros base packages
@@ -105,7 +107,7 @@ rec {
       shell = buildFlakoborosShell pkgs distro packages;
       qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
-    pkgs.rosPackages.${distro}.buildEnv {
+    (pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
@@ -120,9 +122,11 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
-    };
+    }).overrideAttrs
+      {
+        preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
+      };
 
   /**
     `buildFlakoborosRosEnv`, without the packages in `buildFlakoborosShell`, but with their dependencies
@@ -133,7 +137,7 @@ rec {
       shell = buildFlakoborosDevShell pkgs distro packages;
       qtHelpers = mkQtHelpers pkgs (ros2qt distro);
     in
-    pkgs.rosPackages.${distro}.buildEnv {
+    (pkgs.rosPackages.${distro}.buildEnv {
       extraOutputsToInstall = [ "out" ];
       paths = lib.unique (
         lib.filter lib.isDerivation (
@@ -148,9 +152,11 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      derivationArgs.preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
       postBuild = rosWrapperArgs pkgs distro cfg;
-    };
+    }).overrideAttrs
+      {
+        preBuild = "export PKG_CONFIG=${lib.getExe pkgs.pkg-config}";
+      };
 
   /**
     `buildFlakoborosDevShell` plus ros base packages
