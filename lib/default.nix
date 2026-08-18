@@ -9,7 +9,7 @@ rec {
   ros2gz =
     distro:
     if distro == "alum" then
-      "fortress"
+      "harmonic"
     else if distro == "humble" then
       "fortress"
     else if distro == "jazzy" then
