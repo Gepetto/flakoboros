@@ -1,6 +1,6 @@
 [project]
 name = "flakoboros"
-version = "0.1.1"
+version = "0.2.0"
 description = "Circular Packaging framework with nix Flakes, including ROS support"
 readme = "README.md"
 authors = [
@@ -15,6 +15,9 @@ dependencies = [
 
 [project.scripts]
 flakoboros = "flakoboros:main"
+
+[project.urls]
+homepage = "https://github.com/Gepetto/flakoboros"
 
 [build-system]
 requires = ["uv_build>=0.11.19,<0.12.0"]
