@@ -195,6 +195,7 @@
       "humble"
       "jazzy"
       "kilted"
+      "lyrical"
       "rolling"
     ];
     example = [ "rolling" ];
