@@ -8,7 +8,9 @@ rec {
   */
   ros2gz =
     distro:
-    if distro == "humble" then
+    if distro == "alum" then
+      "fortress"
+    else if distro == "humble" then
       "fortress"
     else if distro == "jazzy" then
       "harmonic"
@@ -25,7 +27,11 @@ rec {
     mapping of recommended Qt per ROS distro
   */
   ros2qt =
-    distro: if (distro == "humble" || distro == "jazzy" || distro == "kilted") then "5" else "6";
+    distro:
+    if (distro == "alum" || distro == "humble" || distro == "jazzy" || distro == "kilted") then
+      "5"
+    else
+      "6";
 
   /**
     Qt helpers
