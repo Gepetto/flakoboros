@@ -158,7 +158,7 @@ def main():
     wsconf = {k: list(v) for k, v in wsconf.items() if v}
     wsconf["rosShellDistro"] = args.ros
     wsconf["rosDistros"] = [args.ros]
-    pathlib.Path("wsconf.json").write_text(json.dumps(wsconf))
+    pathlib.Path("wsconf.json").write_text(json.dumps(wsconf, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
