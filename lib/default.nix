@@ -202,6 +202,8 @@ rec {
   getRosBasePackages = pkgs: distro: [
     pkgs.colcon
     pkgs.rosPackages.${distro}.ros2action
+    pkgs.rosPackages.${distro}.ros2cli
+    pkgs.rosPackages.${distro}.ros2controlcli
     pkgs.rosPackages.${distro}.ros2launch
     pkgs.rosPackages.${distro}.ros2run
     pkgs.rosPackages.${distro}.ros2topic
