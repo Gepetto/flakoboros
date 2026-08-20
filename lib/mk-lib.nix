@@ -171,7 +171,10 @@ rec {
         ++ lib.attrVals cfg.extraPackages pkgs
         ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
-      shellHook = rosShellHook pkgs distro env cfg;
+      shellHook = rosShellHook pkgs distro env cfg + ''
+        eval "$(${lib.getExe' pkgs.python3Packages.argcomplete "register-python-argcomplete"} colcon)"
+        eval "$(${lib.getExe' pkgs.python3Packages.argcomplete "register-python-argcomplete"} ros2)"
+      '';
     };
 
 }
