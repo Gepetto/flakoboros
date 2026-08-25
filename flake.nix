@@ -47,7 +47,10 @@
         perSystem =
           { pkgs, system, ... }:
           {
-            packages = { inherit (pkgs) nixdoc; };
+            packages = {
+              inherit (pkgs) nixdoc;
+              flakoboros = pkgs.callPackage ./package.nix { };
+            };
             treefmt = {
               # workaround  https://github.com/numtide/treefmt-nix/issues/352
               pkgs = inputs.nixpkgs.legacyPackages.${system};
