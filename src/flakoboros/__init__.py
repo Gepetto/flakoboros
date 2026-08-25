@@ -32,7 +32,10 @@ FLAKE_TEMPLATE = """
   outputs =
     inputs:
     inputs.gazebros2nix.lib.mkFlakoboros inputs (
-      { lib, ... }: lib.importJSON ./wsconf.json
+      { lib, ... }:
+      (lib.importJSON ./wsconf.json)
+      // {
+      }
     );
 }
 """
@@ -157,7 +160,7 @@ def main():
                             "%s is unknown. maybe you should clone it too ?", name
                         )
 
-    wsconf = {k: list(v) for k, v in wsconf.items() if v}
+    wsconf = {k: sorted(v) for k, v in wsconf.items() if v}
     wsconf["rosShellDistro"] = args.ros
     wsconf["rosDistros"] = [args.ros]
     pathlib.Path("wsconf.json").write_text(json.dumps(wsconf, indent=2, sort_keys=True))
