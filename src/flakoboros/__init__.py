@@ -49,14 +49,14 @@ parser.add_argument(
     "-q",
     "--quiet",
     action="count",
-    default=int(os.environ.get("QUIET", 0)),
+    default=int(os.environ.get("QUIET", "0")),
     help="decrement verbosity level",
 )
 parser.add_argument(
     "-v",
     "--verbose",
     action="count",
-    default=int(os.environ.get("VERBOSITY", 0)),
+    default=int(os.environ.get("VERBOSITY", "0")),
     help="increment verbosity level",
 )
 
@@ -113,7 +113,9 @@ def main():
         "extraDevPyPackages": set(),
         "extraDevRosPackages": set(),
     }
-    os.environ["ROS_DISTRO"] = args.ros
+    os.environ["ROS_DISTRO"] = "humble" if args.ros == "alum" else args.ros
+    os.environ["ROS_VERSION"] = "2"
+    os.environ["ROS_PYTHON_VERSION"] = "3"
     for root, _dirs, files in src.walk():
         if PACKAGE in files:
             pkg = parse_package(root)
