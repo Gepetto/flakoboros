@@ -199,15 +199,20 @@ rec {
 
     Don't hesitate to contact us to extend this list !
   */
-  getRosBasePackages = pkgs: distro: [
-    pkgs.colcon
-    pkgs.rosPackages.${distro}.ros2action
-    pkgs.rosPackages.${distro}.ros2cli
-    pkgs.rosPackages.${distro}.ros2controlcli
-    pkgs.rosPackages.${distro}.ros2launch
-    pkgs.rosPackages.${distro}.ros2run
-    pkgs.rosPackages.${distro}.ros2topic
-  ];
+  getRosBasePackages =
+    pkgs: distro:
+    [
+      pkgs.colcon
+      pkgs.rosPackages.${distro}.ros2action
+      pkgs.rosPackages.${distro}.ros2cli
+      pkgs.rosPackages.${distro}.ros2controlcli
+      pkgs.rosPackages.${distro}.ros2launch
+      pkgs.rosPackages.${distro}.ros2run
+      pkgs.rosPackages.${distro}.ros2topic
+      pkgs.rosPackages.${distro}.ros2topic
+      pkgs.rosPackages.${distro}.launch-testing-ament-cmake
+    ]
+    ++ pkgs.rosPackages.${distro}.ament-lint-common.propagatedBuildInputs;
 
   /**
     Generate libFlakoboros
