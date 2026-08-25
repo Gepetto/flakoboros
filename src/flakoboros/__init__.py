@@ -32,7 +32,10 @@ FLAKE_TEMPLATE = """
   outputs =
     inputs:
     inputs.gazebros2nix.lib.mkFlakoboros inputs (
-      { lib, ... }: lib.importJSON ./wsconf.json
+      { lib, ... }:
+      (lib.importJSON ./wsconf.json)
+      // {
+      }
     );
 }
 """
