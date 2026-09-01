@@ -14,10 +14,9 @@ import pathlib
 import subprocess
 import time
 
-from catkin_pkg.package import parse_package
 import httpx
+from catkin_pkg.package import parse_package
 from xdg_base_dirs import xdg_cache_home
-
 
 NAME = "flakoboros"
 LOGGER = logging.getLogger(NAME)
@@ -88,6 +87,7 @@ def ensure_setup():
                 ["direnv", "allow"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                check=False,
             )
         except FileNotFoundError:
             LOGGER.warning(
@@ -167,4 +167,4 @@ def main():
 
 
 if __name__ == "__main__":
-     main()
+    main()
