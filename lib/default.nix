@@ -19,7 +19,7 @@ rec {
     else if distro == "lyrical" then
       "jetty"
     else if distro == "rolling" then
-      "jetty"
+      "rotary"
     else
       throw "wrong ros distro";
 
