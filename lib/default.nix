@@ -253,4 +253,13 @@ rec {
     Extract version from a python pyproject.toml file
   */
   pythonVersion = loadVersion "tomlq" ".project.version";
+
+  /**
+    Override a package until an update is available upstream
+  */
+  tmpOverride =
+    prevPkg: prevVersion:
+    lib.throwIfNot (lib.versionAtLeast prevVersion prevPkg.version)
+      "${prevPkg.pname} ${prevPkg.version} is now available. Please remove (or update) its override for ${prevVersion}"
+      prevPkg;
 }
