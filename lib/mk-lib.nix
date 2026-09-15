@@ -91,6 +91,7 @@ rec {
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      wrapPrograps = false;
     };
 
   /**
@@ -117,6 +118,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      wrapPrograps = false;
     };
 
   /**
@@ -143,6 +145,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
+      wrapPrograps = false;
     };
 
   /**
