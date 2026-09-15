@@ -4,7 +4,6 @@
 
   mkQtHelpers,
   ros2qt,
-  rosWrapperArgs,
   rosShellHook,
   getRosBasePackages,
   ...
@@ -92,7 +91,7 @@ rec {
         ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro}
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro cfg;
+      wrapPrograms = false;
     };
 
   /**
@@ -119,7 +118,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro cfg;
+      wrapPrograms = false;
     };
 
   /**
@@ -146,7 +145,7 @@ rec {
         ++ getRosBasePackages pkgs distro
         ++ lib.optionals cfg.enableQt qtHelpers.env
       );
-      postBuild = rosWrapperArgs pkgs distro cfg;
+      wrapPrograms = false;
     };
 
   /**
