@@ -44,23 +44,27 @@ rec {
     {
       env = [
         qt.qtbase
-        qt.wrapQtAppsHook
       ]
       ++ lib.optionals (qtVersion == "5") [
         qt.qtgraphicaleffects
       ];
-    }
-    // lib.optionalAttrs (qtVersion == "5") {
       QML2_IMPORT_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtQmlPrefix (
         [
           qt.qtbase
           qt.qtdeclarative
+          qt.qtwebsockets
+        ]
+        ++ lib.optionals (qtVersion == "5") [
           qt.qtquickcontrols
           qt.qtquickcontrols2
           qt.qtgraphicaleffects
-          qt.qtwebsockets
         ]
-        ++ lib.optional pkgs.stdenv.hostPlatform.isLinux qt.qtwayland
+        ++ lib.optionals (qtVersion == "6") [
+          qt.qt5compat
+        ]
+        ++ lib.optionals (pkgs.stdenv.hostPlatform.isLinux) [
+          qt.qtwayland
+        ]
       );
       QT_PLUGIN_PATH = lib.makeSearchPathOutput "bin" qt.qtbase.qtPluginPrefix (
         [
@@ -78,51 +82,6 @@ rec {
             ++ lib.optional pkgs.stdenv.hostPlatform.isLinux qt.qtwayland
           );
     };
-
-  /**
-    set many env vars in a makeWrapperArgs format for postBuild
-  */
-  rosWrapperArgs =
-    pkgs: distro:
-    {
-      enableQt ? true,
-      ...
-    }:
-    let
-      qtVersion = ros2qt distro;
-      qtHelpers = mkQtHelpers pkgs qtVersion;
-    in
-    ''
-      rosWrapperArgs+=(
-      --unset QT_PLUGIN_PATH
-      --unset QTWEBKIT_PLUGIN_PATH
-      --unset QT_QPA_PLATFORMTHEME
-      --unset QT_STYLE_OVERRIDE
-      --prefix AMENT_PREFIX_PATH : $out
-      --prefix LD_LIBRARY_PATH : $out/lib
-      --prefix PYTHONPATH : $out/lib/python3.13/site-packages:$out/lib/python3.14/site-packages
-    ''
-    + lib.optionalString (distro == "humble") ''
-      --set-default IGN_IP 127.0.0.1
-      --set-default IGN_VERSION ${ros2gz distro}
-      --set-default IGNITION_VERSION ${ros2gz distro}
-      --prefix IGN_CONFIG_PATH : $out/share/ignition
-      --prefix IGN_GAZEBO_RESOURCE_PATH : $out/share
-    ''
-    + lib.optionalString (enableQt && qtVersion == "5") ''
-      --set QML2_IMPORT_PATH ${qtHelpers.QML2_IMPORT_PATH}
-      --set QT_PLUGIN_PATH ${qtHelpers.QT_PLUGIN_PATH}
-      --set QT_QPA_PLATFORM_PLUGIN_PATH ${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
-    ''
-    + lib.optionalString (distro != "humble") ''
-      --set-default GZ_IP 127.0.0.1
-      --set-default GAZEBO_VERSION ${ros2gz distro}
-      --set-default GZ_VERSION ${ros2gz distro}
-      --prefix GZ_SIM_RESOURCE_PATH : $out/share
-    ''
-    + ''
-      )
-    '';
 
   /**
     set many env vars in a bash format for pkgs.mkShell { shellHook = … }
@@ -165,7 +124,7 @@ rec {
       export IGN_CONFIG_PATH
       export IGN_GAZEBO_RESOURCE_PATH
     ''
-    + lib.optionalString (pkgs != null && enableQt && qtVersion == "5") ''
+    + lib.optionalString (pkgs != null && enableQt) ''
       QML2_IMPORT_PATH=${qtHelpers.QML2_IMPORT_PATH}
       QT_PLUGIN_PATH=${qtHelpers.QT_PLUGIN_PATH}
       QT_QPA_PLATFORM_PLUGIN_PATH=${qtHelpers.QT_QPA_PLATFORM_PLUGIN_PATH}
@@ -211,7 +170,6 @@ rec {
       pkgs.rosPackages.${distro}.ros2launch
       pkgs.rosPackages.${distro}.ros2run
       pkgs.rosPackages.${distro}.ros2topic
-      pkgs.rosPackages.${distro}.ros2topic
       pkgs.rosPackages.${distro}.launch-testing-ament-cmake
     ]
     ++ pkgs.rosPackages.${distro}.ament-lint-common.propagatedBuildInputs;
@@ -227,7 +185,6 @@ rec {
         lib
         mkQtHelpers
         ros2qt
-        rosWrapperArgs
         rosShellHook
         getRosBasePackages
         ;
