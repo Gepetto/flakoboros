@@ -146,7 +146,7 @@
     default = [ ];
     example = [
       "plotjuggler"
-      "ros2doctor"
+      "rviz"
     ];
   };
 
