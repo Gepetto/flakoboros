@@ -204,6 +204,8 @@ rec {
     [
       pkgs.colcon
       pkgs.rosPackages.${distro}.ros2action
+      pkgs.rosPackages.${distro}.ros2bag
+      pkgs.rosPackages.${distro}.ros2doctor
       pkgs.rosPackages.${distro}.ros2cli
       pkgs.rosPackages.${distro}.ros2controlcli
       pkgs.rosPackages.${distro}.ros2launch
