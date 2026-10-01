@@ -165,11 +165,7 @@ rec {
       __structuredAttrs = true;
       strictDeps = true;
       inputsFrom = [ shell ];
-      packages =
-        getRosBasePackages pkgs distro
-        ++ lib.attrVals cfg.extraPackages pkgs
-        ++ lib.attrVals cfg.extraPyPackages pkgs.python3Packages
-        ++ lib.attrVals cfg.extraRosPackages pkgs.rosPackages.${distro};
+      packages = [ env ];
       shellHook = rosShellHook pkgs distro env cfg;
     };
 
