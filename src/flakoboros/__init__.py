@@ -147,7 +147,7 @@ def main():
                         for rosdep in cache["rosdep"][name]:
                             if rosdep.startswith("python3Packages."):
                                 wsconf["extraPyPackages"].add(
-                                    rosdep.removePrefix("python3Packages.")
+                                    rosdep.removeprefix("python3Packages.")
                                 )
                             else:
                                 wsconf["extraPackages"].add(rosdep)
